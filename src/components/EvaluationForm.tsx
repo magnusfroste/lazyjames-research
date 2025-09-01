@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { Loader2, Send, Globe, Linkedin, Building } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, Send, Globe, Linkedin, Building, Webhook } from 'lucide-react';
 import { EvaluationRequest } from './PromptEvaluator';
 import { toast } from '@/hooks/use-toast';
 
@@ -20,13 +21,14 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
     linkedinUrl: '',
     userPrompt: '',
     masterPrompt: '',
+    webhookUrl: 'https://agent.froste.eu/webhook-test/ab729e8a-0da7-49ef-902e-d0fafb1e0e56',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!formData.companyName || !formData.userPrompt || !formData.masterPrompt) {
+    if (!formData.companyName || !formData.userPrompt || !formData.masterPrompt || !formData.webhookUrl) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
@@ -134,8 +136,36 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
         </div>
       </Card>
 
+      {/* Webhook Configuration */}
+      <Card className="p-4 bg-background/50 border-primary/10">
+        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">
+          Webhook Configuration
+        </h3>
+        <div className="space-y-2">
+          <Label htmlFor="webhookUrl" className="flex items-center gap-2">
+            <Webhook className="w-4 h-4 text-primary" />
+            Environment *
+          </Label>
+          <Select 
+            value={formData.webhookUrl} 
+            onValueChange={(value) => handleInputChange('webhookUrl', value)}
+          >
+            <SelectTrigger className="bg-background border-primary/20 focus:border-primary">
+              <SelectValue placeholder="Select webhook environment" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-primary/20">
+              <SelectItem value="https://agent.froste.eu/webhook-test/ab729e8a-0da7-49ef-902e-d0fafb1e0e56">
+                Test Environment
+              </SelectItem>
+              <SelectItem value="https://agent.froste.eu/webhook/ab729e8a-0da7-49ef-902e-d0fafb1e0e56">
+                Production Environment
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
 
-      <Button 
+      <Button
         type="submit" 
         variant="ai" 
         size="lg" 
