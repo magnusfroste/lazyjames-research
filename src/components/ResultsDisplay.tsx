@@ -62,6 +62,12 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, isEvalu
 
   const formatResponse = (response: any): string => {
     if (typeof response === 'string') return response;
+    
+    // Handle n8n text node response format: [{"text": "content"}]
+    if (Array.isArray(response) && response.length > 0 && response[0].text) {
+      return response[0].text;
+    }
+    
     return JSON.stringify(response, null, 2);
   };
 
