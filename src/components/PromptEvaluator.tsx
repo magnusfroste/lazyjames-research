@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { EvaluationForm } from './EvaluationForm';
-import { ResultsDisplay } from './ResultsDisplay';
-import { Brain, Sparkles } from 'lucide-react';
+import { SimpleResultsDisplay } from './SimpleResultsDisplay';
 
 export interface EvaluationRequest {
   companyName: string;
@@ -23,7 +21,7 @@ export interface EvaluationResult {
 }
 
 export const PromptEvaluator: React.FC = () => {
-  const [results, setResults] = useState<EvaluationResult[]>([]);
+  const [latestResult, setLatestResult] = useState<EvaluationResult | null>(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
 
   const handleEvaluation = async (request: EvaluationRequest) => {
@@ -86,7 +84,7 @@ export const PromptEvaluator: React.FC = () => {
         error: errorMessage,
       };
 
-      setResults(prev => [result, ...prev]);
+      setLatestResult(result);
     } catch (error) {
       let errorMessage = 'Connection failed';
       
@@ -106,69 +104,36 @@ export const PromptEvaluator: React.FC = () => {
         error: errorMessage,
       };
 
-      setResults(prev => [result, ...prev]);
+      setLatestResult(result);
     } finally {
       setIsEvaluating(false);
     }
   };
 
-  const clearResults = () => {
-    setResults([]);
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b border-border bg-gradient-accent">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-gradient-primary rounded-lg shadow-glow">
-              <Brain className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Prompt Refine Station
-            </h1>
-            <Sparkles className="w-6 h-6 text-primary" />
-          </div>
-          <p className="text-muted-foreground text-lg">
-            Optimize your prompts by testing different parameters and analyzing results in real-time
-          </p>
+    <div className="min-h-screen bg-white">
+      {/* Simple Header */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="container mx-auto px-6 py-4">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Prompt Refine Station
+          </h1>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Input Section */}
-          <div className="space-y-6">
-            <Card className="p-6 bg-gradient-secondary border-primary/20 shadow-elegant">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Evaluation Parameters
-              </h2>
-              <EvaluationForm onSubmit={handleEvaluation} isLoading={isEvaluating} />
-            </Card>
+      {/* Main Content - Two Column Layout */}
+      <div className="container mx-auto px-6 py-6">
+        <div className="grid grid-cols-2 gap-8 h-full">
+          {/* Left Column - Prompts */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Prompt Configuration</h2>
+            <EvaluationForm onSubmit={handleEvaluation} isLoading={isEvaluating} />
           </div>
 
-          {/* Results Section */}
-          <div className="space-y-6">
-            <Card className="p-6 bg-gradient-secondary border-primary/20 shadow-elegant">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold flex items-center gap-2">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                  Evaluation Results
-                </h2>
-                {results.length > 0 && (
-                  <button
-                    onClick={clearResults}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
-              <ResultsDisplay results={results} isEvaluating={isEvaluating} />
-            </Card>
+          {/* Right Column - Results */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Results</h2>
+            <SimpleResultsDisplay result={latestResult} isEvaluating={isEvaluating} />
           </div>
         </div>
       </div>

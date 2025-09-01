@@ -51,109 +51,33 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Company Information */}
-      <Card className="p-4 bg-background/50 border-primary/10">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">
-          Company Information
-        </h3>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="companyName" className="flex items-center gap-2">
-              <Building className="w-4 h-4 text-primary" />
-              Company Name *
-            </Label>
-            <Input
-              id="companyName"
-              value={formData.companyName}
-              onChange={(e) => handleInputChange('companyName', e.target.value)}
-              placeholder="Enter company name"
-              className="bg-background border-primary/20 focus:border-primary"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="companyUrl" className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-primary" />
-              Company URL
-            </Label>
-            <Input
-              id="companyUrl"
-              value={formData.companyUrl}
-              onChange={(e) => handleInputChange('companyUrl', e.target.value)}
-              placeholder="https://company.com"
-              className="bg-background border-primary/20 focus:border-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="linkedinUrl" className="flex items-center gap-2">
-              <Linkedin className="w-4 h-4 text-primary" />
-              LinkedIn URL
-            </Label>
-            <Input
-              id="linkedinUrl"
-              value={formData.linkedinUrl}
-              onChange={(e) => handleInputChange('linkedinUrl', e.target.value)}
-              placeholder="https://linkedin.com/company/..."
-              className="bg-background border-primary/20 focus:border-primary"
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Prompts */}
-      <Card className="p-4 bg-background/50 border-primary/10">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">
-          Prompt Configuration
-        </h3>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="userPrompt">User Prompt *</Label>
-            <Textarea
-              id="userPrompt"
-              value={formData.userPrompt}
-              onChange={(e) => handleInputChange('userPrompt', e.target.value)}
-              placeholder="Enter the user prompt to evaluate..."
-              rows={4}
-              className="bg-background border-primary/20 focus:border-primary resize-none"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="masterPrompt">Master Prompt *</Label>
-            <Textarea
-              id="masterPrompt"
-              value={formData.masterPrompt}
-              onChange={(e) => handleInputChange('masterPrompt', e.target.value)}
-              placeholder="Enter the master prompt for evaluation..."
-              rows={4}
-              className="bg-background border-primary/20 focus:border-primary resize-none"
-              required
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Webhook Configuration */}
-      <Card className="p-4 bg-background/50 border-primary/10">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">
-          Webhook Configuration
-        </h3>
+      {/* Company Information - Compact */}
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="webhookUrl" className="flex items-center gap-2">
-            <Webhook className="w-4 h-4 text-primary" />
+          <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">
+            Company Name *
+          </Label>
+          <Input
+            id="companyName"
+            value={formData.companyName}
+            onChange={(e) => handleInputChange('companyName', e.target.value)}
+            placeholder="Enter company name"
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="webhookUrl" className="text-sm font-medium text-gray-700">
             Environment *
           </Label>
           <Select 
             value={formData.webhookUrl} 
             onValueChange={(value) => handleInputChange('webhookUrl', value)}
           >
-            <SelectTrigger className="bg-background border-primary/20 focus:border-primary">
+            <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
               <SelectValue placeholder="Select webhook environment" />
             </SelectTrigger>
-            <SelectContent className="bg-background border-primary/20">
+            <SelectContent className="bg-white border-gray-200">
               <SelectItem value="https://agent.froste.eu/webhook-test/ab729e8a-0da7-49ef-902e-d0fafb1e0e56">
                 Test Environment
               </SelectItem>
@@ -163,14 +87,71 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
             </SelectContent>
           </Select>
         </div>
-      </Card>
+      </div>
+
+      {/* Optional URLs - Compact */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="companyUrl" className="text-sm font-medium text-gray-700">
+            Company URL
+          </Label>
+          <Input
+            id="companyUrl"
+            value={formData.companyUrl}
+            onChange={(e) => handleInputChange('companyUrl', e.target.value)}
+            placeholder="https://company.com"
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="linkedinUrl" className="text-sm font-medium text-gray-700">
+            LinkedIn URL
+          </Label>
+          <Input
+            id="linkedinUrl"
+            value={formData.linkedinUrl}
+            onChange={(e) => handleInputChange('linkedinUrl', e.target.value)}
+            placeholder="https://linkedin.com/company/..."
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+
+      {/* Large Prompt Textareas */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="userPrompt" className="text-sm font-medium text-gray-700">User Prompt *</Label>
+          <Textarea
+            id="userPrompt"
+            value={formData.userPrompt}
+            onChange={(e) => handleInputChange('userPrompt', e.target.value)}
+            placeholder="Enter the user prompt to evaluate..."
+            rows={10}
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-none font-mono text-sm"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="masterPrompt" className="text-sm font-medium text-gray-700">Master Prompt *</Label>
+          <Textarea
+            id="masterPrompt"
+            value={formData.masterPrompt}
+            onChange={(e) => handleInputChange('masterPrompt', e.target.value)}
+            placeholder="Enter the master prompt for evaluation..."
+            rows={10}
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-none font-mono text-sm"
+            required
+          />
+        </div>
+      </div>
 
       <Button
         type="submit" 
-        variant="ai" 
+        variant="default" 
         size="lg" 
         disabled={isLoading}
-        className="w-full font-semibold"
+        className="w-full font-semibold bg-blue-600 hover:bg-blue-700 text-white"
       >
         {isLoading ? (
           <>
