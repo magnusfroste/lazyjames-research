@@ -1,0 +1,254 @@
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { EvaluationResult } from './PromptEvaluator';
+import { 
+  CheckCircle, 
+  XCircle, 
+  Clock, 
+  ChevronDown, 
+  ChevronUp,
+  Copy,
+  Download,
+  Loader2
+} from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+
+interface ResultsDisplayProps {
+  results: EvaluationResult[];
+  isEvaluating: boolean;
+}
+
+export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, isEvaluating }) => {
+  const [expandedResults, setExpandedResults] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (resultId: string) => {
+    setExpandedResults(prev => {
+      const next = new Set(prev);
+      if (next.has(resultId)) {
+        next.delete(resultId);
+      } else {
+        next.add(resultId);
+      }
+      return next;
+    });
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Content copied to clipboard",
+    });
+  };
+
+  const downloadResults = () => {
+    const dataStr = JSON.stringify(results, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `prompt-evaluation-${new Date().toISOString().split('T')[0]}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    toast({
+      title: "Downloaded!",
+      description: "Results downloaded as JSON file",
+    });
+  };
+
+  const formatResponse = (response: any): string => {
+    if (typeof response === 'string') return response;
+    return JSON.stringify(response, null, 2);
+  };
+
+  if (isEvaluating && results.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">Evaluating your prompt...</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">This may take a few moments</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center mx-auto mb-4">
+          <Clock className="w-8 h-8 text-primary" />
+        </div>
+        <h3 className="text-lg font-medium mb-2">No Evaluations Yet</h3>
+        <p className="text-muted-foreground">
+          Fill in the parameters and run your first prompt evaluation to see results here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Header with actions */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {results.length} evaluation{results.length !== 1 ? 's' : ''} completed
+        </p>
+        {results.length > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={downloadResults}
+            className="text-xs"
+          >
+            <Download className="w-3 h-3 mr-1" />
+            Export
+          </Button>
+        )}
+      </div>
+
+      {/* Results list */}
+      <div className="space-y-3 max-h-96 overflow-y-auto">
+        {results.map((result) => (
+          <Card 
+            key={result.id} 
+            className={`p-4 border transition-all duration-200 ${
+              result.success 
+                ? 'border-green-500/20 bg-green-500/5' 
+                : 'border-red-500/20 bg-red-500/5'
+            }`}
+          >
+            {/* Result header */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                {result.success ? (
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                ) : (
+                  <XCircle className="w-4 h-4 text-red-500" />
+                )}
+                <Badge variant={result.success ? "default" : "destructive"}>
+                  {result.success ? 'Success' : 'Failed'}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {result.timestamp.toLocaleTimeString()}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleExpanded(result.id)}
+                className="h-6 w-6 p-0"
+              >
+                {expandedResults.has(result.id) ? (
+                  <ChevronUp className="w-3 h-3" />
+                ) : (
+                  <ChevronDown className="w-3 h-3" />
+                )}
+              </Button>
+            </div>
+
+            {/* Company name */}
+            <div className="mb-2">
+              <span className="text-sm font-medium">{result.request.companyName}</span>
+            </div>
+
+            {/* Error message if failed */}
+            {!result.success && result.error && (
+              <div className="text-sm text-red-400 bg-red-500/10 p-2 rounded mb-3">
+                {result.error}
+              </div>
+            )}
+
+            {/* Expanded content */}
+            {expandedResults.has(result.id) && (
+              <div className="space-y-4 mt-4 pt-4 border-t border-border/50">
+                {/* Request details */}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Request Parameters</h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      <span className="text-muted-foreground">Company:</span>
+                      <span>{result.request.companyName}</span>
+                      <span className="text-muted-foreground">Company URL:</span>
+                      <span className="truncate">{result.request.companyUrl || 'N/A'}</span>
+                      <span className="text-muted-foreground">LinkedIn:</span>
+                      <span className="truncate">{result.request.linkedinUrl || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Prompts */}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">User Prompt</h4>
+                  <div className="relative">
+                    <pre className="text-xs bg-background/50 p-3 rounded border border-border/50 overflow-x-auto">
+                      {result.request.userPrompt}
+                    </pre>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                      onClick={() => copyToClipboard(result.request.userPrompt)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Master Prompt</h4>
+                  <div className="relative">
+                    <pre className="text-xs bg-background/50 p-3 rounded border border-border/50 overflow-x-auto">
+                      {result.request.masterPrompt}
+                    </pre>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                      onClick={() => copyToClipboard(result.request.masterPrompt)}
+                    >
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Response */}
+                {result.response && (
+                  <div>
+                    <h4 className="text-sm font-medium mb-2">Response</h4>
+                    <div className="relative">
+                      <pre className="text-xs bg-background/50 p-3 rounded border border-border/50 overflow-x-auto max-h-48 overflow-y-auto">
+                        {formatResponse(result.response)}
+                      </pre>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 h-6 w-6 p-0 opacity-50 hover:opacity-100"
+                        onClick={() => copyToClipboard(formatResponse(result.response))}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </Card>
+        ))}
+      </div>
+      
+      {isEvaluating && (
+        <Card className="p-4 border-primary/20 bg-gradient-accent">
+          <div className="flex items-center gap-3">
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <span className="text-sm">Evaluating new prompt...</span>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+};
