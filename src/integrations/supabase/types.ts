@@ -278,6 +278,54 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_evaluations: {
+        Row: {
+          company_name: string | null
+          company_size: string | null
+          created_at: string
+          evaluation_results: Json | null
+          id: string
+          industry: string | null
+          master_prompt: string
+          status: string | null
+          target_audience: string | null
+          updated_at: string
+          user_id: string | null
+          user_prompt: string
+          webhook_url: string
+        }
+        Insert: {
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string
+          evaluation_results?: Json | null
+          id?: string
+          industry?: string | null
+          master_prompt: string
+          status?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id?: string | null
+          user_prompt: string
+          webhook_url: string
+        }
+        Update: {
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string
+          evaluation_results?: Json | null
+          id?: string
+          industry?: string | null
+          master_prompt?: string
+          status?: string | null
+          target_audience?: string | null
+          updated_at?: string
+          user_id?: string | null
+          user_prompt?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       user_email_settings: {
         Row: {
           app_password: string | null

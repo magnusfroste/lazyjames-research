@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { EvaluationForm } from './EvaluationForm';
 import { ResultsDisplay } from './ResultsDisplay';
 import { Brain, Sparkles } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { User } from '@supabase/supabase-js';
 
 export interface EvaluationRequest {
   companyName: string;
@@ -25,11 +27,78 @@ export interface EvaluationResult {
 export const PromptEvaluator: React.FC = () => {
   const [results, setResults] = useState<EvaluationResult[]>([]);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const saveEvaluationToDatabase = async (request: EvaluationRequest, evaluationId: string) => {
+    if (!user) return null;
+
+    const { data, error } = await supabase
+      .from('prompt_evaluations')
+      .insert({
+        user_id: user.id,
+        company_name: request.companyName,
+        industry: null, // Not captured in current form
+        company_size: null, // Not captured in current form
+        target_audience: null, // Not captured in current form
+        user_prompt: request.userPrompt,
+        master_prompt: request.masterPrompt,
+        webhook_url: request.webhookUrl,
+        status: 'pending'
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error saving evaluation:', error);
+      return null;
+    }
+
+    return data;
+  };
+
+  const updateEvaluationResults = async (evaluationId: string, results: any, success: boolean, error?: string) => {
+    if (!user) return;
+
+    const { error: updateError } = await supabase
+      .from('prompt_evaluations')
+      .update({
+        evaluation_results: results,
+        status: success ? 'completed' : 'failed',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', evaluationId);
+
+    if (updateError) {
+      console.error('Error updating evaluation results:', updateError);
+    }
+  };
 
   const handleEvaluation = async (request: EvaluationRequest) => {
     setIsEvaluating(true);
     
     const resultId = Date.now().toString();
+    let dbEvaluation = null;
+
+    // Save to database if user is authenticated
+    if (user) {
+      dbEvaluation = await saveEvaluationToDatabase(request, resultId);
+    }
     
     try {
       const response = await fetch(request.webhookUrl, {
@@ -75,6 +144,11 @@ export const PromptEvaluator: React.FC = () => {
         }
       }
 
+      // Update database with results
+      if (dbEvaluation) {
+        await updateEvaluationResults(dbEvaluation.id, responseData, response.ok, errorMessage);
+      }
+
       const result: EvaluationResult = {
         id: resultId,
         request,
@@ -92,6 +166,11 @@ export const PromptEvaluator: React.FC = () => {
         errorMessage = 'CORS error or network failure. Please ensure:\n• n8n workflow is active\n• Webhook has CORS headers enabled\n• URL is accessible from browser';
       } else if (error instanceof Error) {
         errorMessage = error.message;
+      }
+
+      // Update database with error
+      if (dbEvaluation) {
+        await updateEvaluationResults(dbEvaluation.id, null, false, errorMessage);
       }
 
       const result: EvaluationResult = {
