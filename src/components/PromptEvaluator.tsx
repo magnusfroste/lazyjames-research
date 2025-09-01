@@ -51,6 +51,9 @@ export const PromptEvaluator: React.FC = () => {
       let responseData;
       let errorMessage;
 
+      // Clone response to allow reading both JSON and text if needed
+      const responseClone = response.clone();
+
       try {
         responseData = await response.json();
         
@@ -65,7 +68,8 @@ export const PromptEvaluator: React.FC = () => {
           }
         }
       } catch {
-        responseData = await response.text();
+        // Use cloned response for text fallback
+        responseData = await responseClone.text();
         if (!response.ok) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
