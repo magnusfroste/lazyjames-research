@@ -49,10 +49,26 @@ export const PromptEvaluator: React.FC = () => {
       });
 
       let responseData;
+      let errorMessage;
+
       try {
         responseData = await response.json();
+        
+        // Check for specific n8n webhook errors
+        if (!response.ok) {
+          if (response.status === 404 && responseData?.message?.includes('not registered for POST')) {
+            errorMessage = 'Webhook not configured for POST requests. Please check your n8n workflow setup.';
+          } else if (response.status === 404) {
+            errorMessage = 'Webhook endpoint not found. Please verify the webhook URL in your n8n workflow.';
+          } else {
+            errorMessage = `HTTP ${response.status}: ${responseData?.message || response.statusText}`;
+          }
+        }
       } catch {
         responseData = await response.text();
+        if (!response.ok) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
       }
 
       const result: EvaluationResult = {
@@ -61,18 +77,26 @@ export const PromptEvaluator: React.FC = () => {
         response: responseData,
         timestamp: new Date(),
         success: response.ok,
-        error: response.ok ? undefined : `HTTP ${response.status}: ${response.statusText}`,
+        error: errorMessage,
       };
 
       setResults(prev => [result, ...prev]);
     } catch (error) {
+      let errorMessage = 'Connection failed';
+      
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        errorMessage = 'CORS error or network failure. Please ensure:\n• n8n workflow is active\n• Webhook has CORS headers enabled\n• URL is accessible from browser';
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
       const result: EvaluationResult = {
         id: resultId,
         request,
         response: null,
         timestamp: new Date(),
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error: errorMessage,
       };
 
       setResults(prev => [result, ...prev]);
