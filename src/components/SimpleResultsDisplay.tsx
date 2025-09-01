@@ -100,8 +100,8 @@ export const SimpleResultsDisplay: React.FC<SimpleResultsDisplayProps> = ({ resu
                 Copy
               </Button>
             </div>
-            <div className="bg-gray-50 rounded border border-gray-200 p-4 max-h-96 overflow-y-auto">
-              <div className="prose prose-sm max-w-none text-gray-800">
+            <div className="bg-white rounded border border-gray-200 p-4 max-h-96 overflow-y-auto">
+              <div className="prose prose-sm max-w-none text-black">
                 <ReactMarkdown
                   components={{
                     h1: ({children}) => <h1 className="text-xl font-bold text-gray-900 mb-3 mt-4 first:mt-0">{children}</h1>,
