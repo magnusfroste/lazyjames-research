@@ -259,7 +259,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
       {/* Large Prompt Textareas */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="userPrompt" className="text-sm font-medium text-gray-700">User Prompt *</Label>
+          <Label htmlFor="userPrompt" className="text-sm font-medium text-gray-700">User Prompt * - Prompt with dynamic fields (who to research, from whos perspective?</Label>
           <Textarea
             id="userPrompt"
             value={formData.userPrompt}
@@ -272,7 +272,7 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="masterPrompt" className="text-sm font-medium text-gray-700">Master Prompt *</Label>
+          <Label htmlFor="masterPrompt" className="text-sm font-medium text-gray-700">Master Prompt * - More static prompt (generic research blueprint)</Label>
           <Textarea
             id="masterPrompt"
             value={formData.masterPrompt}
