@@ -165,22 +165,49 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       };
 
       // Send POST request
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookPayload)
-      });
-
-      if (response.ok) {
-        toast({
-          title: "Webhook Resent",
-          description: `Successfully resent research data for ${researchItem.prospect_company_name}`,
-          duration: 3000
+      console.log('🚀 Sending webhook to:', webhookUrl);
+      console.log('📦 Payload:', JSON.stringify(webhookPayload, null, 2));
+      
+      try {
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload),
+          mode: 'cors' // Explicitly set CORS mode
         });
-      } else {
-        throw new Error(`Webhook failed: ${response.status}`);
+
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+
+        if (response.ok) {
+          const responseText = await response.text();
+          console.log('✅ Webhook response:', responseText);
+          toast({
+            title: "Webhook Resent Successfully",
+            description: `Research data sent to n8n for ${researchItem.prospect_company_name}`,
+            duration: 3000
+          });
+        } else {
+          const errorText = await response.text();
+          console.error('❌ Webhook error response:', errorText);
+          throw new Error(`Webhook failed: ${response.status} - ${errorText}`);
+        }
+      } catch (fetchError) {
+        console.error('🚨 Fetch error:', fetchError);
+        
+        // Check if it's a CORS error
+        if (fetchError instanceof TypeError && fetchError.message.includes('Failed to fetch')) {
+          toast({
+            title: "CORS Error",
+            description: `Cannot reach ${webhookUrl} - likely a CORS issue. Check n8n webhook settings.`,
+            variant: "destructive",
+            duration: 8000
+          });
+        } else {
+          throw fetchError;
+        }
       }
     } catch (error) {
       console.error('Resend error:', error);
