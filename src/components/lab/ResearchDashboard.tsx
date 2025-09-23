@@ -74,6 +74,9 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     loadData();
   }, []);
 
+  // Dummy user ID for POC demo
+  const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -82,6 +85,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       const { data: researchData, error: researchError } = await supabase
         .from('lab_prospect_research')
         .select('*')
+        .eq('user_id', DEMO_USER_ID)
         .order('created_at', { ascending: false });
 
       if (researchError) throw researchError;
@@ -90,9 +94,10 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       const { data: companyData, error: companyError } = await supabase
         .from('lab_company_profiles')
         .select('id, company_name, is_complete')
-        .single();
+        .eq('user_id', DEMO_USER_ID)
+        .maybeSingle();
 
-      if (companyError && companyError.code !== 'PGRST116') {
+      if (companyError) {
         console.error('Company profile error:', companyError);
       }
 
@@ -100,9 +105,10 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       const { data: userData, error: userError } = await supabase
         .from('lab_user_profiles')
         .select('id, full_name, is_complete')
-        .single();
+        .eq('user_id', DEMO_USER_ID)
+        .maybeSingle();
 
-      if (userError && userError.code !== 'PGRST116') {
+      if (userError) {
         console.error('User profile error:', userError);
       }
 
