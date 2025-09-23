@@ -21,15 +21,40 @@ export const LabApp: React.FC = () => {
     try {
       setIsLoading(true);
       
+      const companyPayload = {
+        user_id: DEMO_USER_ID,
+        is_complete: true,
+        company_name: data.company_name ?? data.companyName ?? '',
+        website_url: data.website_url ?? data.websiteUrl ?? '',
+        linkedin_url: data.linkedin_url ?? data.linkedinUrl ?? null,
+        business_registration: data.business_registration ?? null,
+        industry: data.industry ?? '',
+        years_active: data.years_active ?? '',
+        company_size: data.company_size ?? '',
+        mission: data.mission ?? '',
+        vision: data.vision ?? null,
+        values: data.values ?? [],
+        offering_type: data.offering_type ?? [],
+        main_offerings: data.main_offerings ?? [],
+        unique_differentiators: data.unique_differentiators ?? [],
+        typical_results: data.typical_results ?? [],
+        ideal_client_size: data.ideal_client_size ?? [],
+        target_industries: data.target_industries ?? [],
+        project_scope: data.project_scope ?? '',
+        geographic_markets: data.geographic_markets ?? [],
+        pricing_positioning: data.pricing_positioning ?? '',
+        delivery_model: data.delivery_model ?? [],
+        success_story: data.success_story ?? null,
+        known_clients: data.known_clients ?? false,
+        known_clients_list: data.known_clients_list ?? null,
+        credentials: data.credentials ?? [],
+        organizational_personality: data.organizational_personality ?? [],
+        communication_style: data.communication_style ?? ''
+      };
+
       const { error } = await supabase
         .from('lab_company_profiles')
-        .upsert({
-          ...data,
-          user_id: DEMO_USER_ID,
-          is_complete: true
-        }, {
-          onConflict: 'user_id'
-        });
+        .upsert(companyPayload, { onConflict: 'user_id' });
 
       if (error) throw error;
 
@@ -55,15 +80,33 @@ export const LabApp: React.FC = () => {
     try {
       setIsLoading(true);
       
+      const userPayload = {
+        user_id: DEMO_USER_ID,
+        is_complete: true,
+        full_name: data.full_name ?? data.fullName ?? '',
+        linkedin_profile: data.linkedin_profile ?? data.linkedinProfile ?? null,
+        current_location: data.current_location ?? data.currentLocation ?? null,
+        birthplace: data.birthplace ?? null,
+        role_in_organization: data.role_in_organization ?? data.roleInOrganization ?? '',
+        outreach_experience: data.outreach_experience ?? data.outreachExperience ?? '',
+        prospects_per_week: data.prospects_per_week ?? data.prospectsPerWeek ?? '',
+        communication_style: data.communication_style ?? data.communicationStyle ?? '',
+        introduction_style: data.introduction_style ?? data.introductionStyle ?? '',
+        credibility_preference: data.credibility_preference ?? [],
+        preferred_contact_channel: data.preferred_contact_channel ?? [],
+        followup_timing: data.followup_timing ?? data.followUpTiming ?? '',
+        nonresponse_handling: data.nonresponse_handling ?? data.nonResponseHandling ?? '',
+        pain_points_focus: data.pain_points_focus ?? [],
+        expertise_positioning: data.expertise_positioning ?? '',
+        objection_handling: data.objection_handling ?? [],
+        meeting_format: data.meeting_format ?? [],
+        meeting_duration: data.meeting_duration ?? '',
+        success_metrics: data.success_metrics ?? []
+      };
+
       const { error } = await supabase
         .from('lab_user_profiles')
-        .upsert({
-          ...data,
-          user_id: DEMO_USER_ID,
-          is_complete: true
-        }, {
-          onConflict: 'user_id'
-        });
+        .upsert(userPayload, { onConflict: 'user_id' });
 
       if (error) throw error;
 
