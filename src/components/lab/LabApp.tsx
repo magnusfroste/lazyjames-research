@@ -155,26 +155,56 @@ export const LabApp: React.FC = () => {
 
       const webhookUrl = webhookData?.webhook_url || 'https://example.com/webhook';
 
-      // Create the research record
-      const { error: insertError } = await supabase
+      // Prepare the complete webhook payload for n8n development
+      const webhookPayload = {
+        prospect_data: {
+          company_name: data.company_name,
+          website_url: data.website_url,
+          linkedin_url: data.linkedin_url,
+          research_type: data.research_type || 'standard',
+          notes: data.notes || ''
+        },
+        company_profile: companyProfile.data,
+        user_profile: userProfile.data,
+        timestamp: new Date().toISOString(),
+        research_id: null // Will be filled after database insert
+      };
+
+      // Create the research record with FIXED field mapping
+      const { data: researchRecord, error: insertError } = await supabase
         .from('lab_prospect_research')
         .insert({
           user_id: DEMO_USER_ID,
           company_profile_id: companyProfile.data.id,
           user_profile_id: userProfile.data.id,
-          prospect_company_name: data.companyName,
-          prospect_website_url: data.websiteUrl,
-          prospect_linkedin_url: data.linkedinUrl,
-          research_type: data.researchType || 'standard',
+          prospect_company_name: data.company_name,  // FIXED: correct field name
+          prospect_website_url: data.website_url,    // FIXED: correct field name
+          prospect_linkedin_url: data.linkedin_url,  // FIXED: correct field name
+          research_type: data.research_type || 'standard', // FIXED: correct field name
+          notes: data.notes || '',
           webhook_url: webhookUrl,
           status: 'pending'
-        });
+        })
+        .select()
+        .single();
 
       if (insertError) throw insertError;
 
+      // Update payload with research ID
+      webhookPayload.research_id = researchRecord.id;
+
+      // 🚀 DEVELOPMENT MODE: Display webhook payload structure
+      console.log('=== WEBHOOK PAYLOAD FOR N8N DEVELOPMENT ===');
+      console.log('URL:', webhookUrl);
+      console.log('Method: POST');
+      console.log('Headers: Content-Type: application/json');
+      console.log('Body:', JSON.stringify(webhookPayload, null, 2));
+      console.log('=== END WEBHOOK PAYLOAD ===');
+
       toast({
-        title: "Research started successfully",
-        description: "Your prospect research has been queued for processing."
+        title: "Research Started (Development Mode)",
+        description: `Check browser console for complete webhook payload structure. Research ID: ${researchRecord.id}`,
+        duration: 8000
       });
 
       setCurrentView('dashboard');
