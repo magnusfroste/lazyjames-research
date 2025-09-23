@@ -193,19 +193,35 @@ export const LabApp: React.FC = () => {
       // Update payload with research ID
       webhookPayload.research_id = researchRecord.id;
 
-      // 🚀 DEVELOPMENT MODE: Display webhook payload structure
-      console.log('=== WEBHOOK PAYLOAD FOR N8N DEVELOPMENT ===');
-      console.log('URL:', webhookUrl);
-      console.log('Method: POST');
-      console.log('Headers: Content-Type: application/json');
-      console.log('Body:', JSON.stringify(webhookPayload, null, 2));
-      console.log('=== END WEBHOOK PAYLOAD ===');
+      // Send POST request to webhook endpoint
+      try {
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload)
+        });
 
-      toast({
-        title: "Research Started (Development Mode)",
-        description: `Check browser console for complete webhook payload structure. Research ID: ${researchRecord.id}`,
-        duration: 8000
-      });
+        if (response.ok) {
+          console.log('✅ Webhook sent successfully');
+          toast({
+            title: "Research Started",
+            description: `Webhook sent to n8n successfully. Research ID: ${researchRecord.id}`,
+            duration: 5000
+          });
+        } else {
+          throw new Error(`Webhook failed: ${response.status}`);
+        }
+      } catch (webhookError) {
+        console.error('Webhook error:', webhookError);
+        toast({
+          title: "Research Started (Webhook Failed)",
+          description: `Research created but webhook failed. Check console for details. Research ID: ${researchRecord.id}`,
+          variant: "destructive",
+          duration: 8000
+        });
+      }
 
       setCurrentView('dashboard');
     } catch (error) {
