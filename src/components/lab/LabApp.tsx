@@ -8,6 +8,9 @@ import { supabase } from '@/integrations/supabase/client';
 
 type ViewMode = 'dashboard' | 'company-profile' | 'user-profile' | 'research';
 
+// Dummy user ID for POC demo without authentication
+const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';
+
 export const LabApp: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>('dashboard');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +25,7 @@ export const LabApp: React.FC = () => {
         .from('lab_company_profiles')
         .upsert({
           ...data,
+          user_id: DEMO_USER_ID,
           is_complete: true
         }, {
           onConflict: 'user_id'
@@ -55,6 +59,7 @@ export const LabApp: React.FC = () => {
         .from('lab_user_profiles')
         .upsert({
           ...data,
+          user_id: DEMO_USER_ID,
           is_complete: true
         }, {
           onConflict: 'user_id'
@@ -80,73 +85,61 @@ export const LabApp: React.FC = () => {
     }
   };
 
-  const handleStartResearch = async (prospectData: any) => {
+  const handleStartResearch = async (data: any) => {
     try {
       setIsLoading(true);
 
-      // Get profiles
-      const { data: companyProfile } = await supabase
-        .from('lab_company_profiles')
-        .select('id')
-        .single();
+      // Get the user's company and user profiles
+      const [companyProfile, userProfile] = await Promise.all([
+        supabase.from('lab_company_profiles').select('*').eq('user_id', DEMO_USER_ID).maybeSingle(),
+        supabase.from('lab_user_profiles').select('*').eq('user_id', DEMO_USER_ID).maybeSingle()
+      ]);
 
-      const { data: userProfile } = await supabase
-        .from('lab_user_profiles')
-        .select('id')
-        .single();
-
-      if (!companyProfile || !userProfile) {
-        throw new Error('Profiles not found');
+      if (companyProfile.error || userProfile.error) {
+        throw new Error('Error fetching profiles. Please try again.');
       }
 
-      // Get webhook URL from existing settings
+      if (!companyProfile.data || !userProfile.data) {
+        throw new Error('Missing required profiles. Please complete your company and user profiles first.');
+      }
+
+      // Get webhook URL from settings
       const { data: webhookData } = await supabase
         .from('webhook_testing')
         .select('webhook_url')
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      const webhookUrl = webhookData?.webhook_url || process.env.COMPANY_RESEARCH_WEBHOOK_URL || 'https://default-webhook.com';
+      const webhookUrl = webhookData?.webhook_url || 'https://example.com/webhook';
 
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      // Create research record
-      const { data: research, error } = await supabase
+      // Create the research record
+      const { error: insertError } = await supabase
         .from('lab_prospect_research')
         .insert({
-          user_id: user.id,
-          company_profile_id: companyProfile.id,
-          user_profile_id: userProfile.id,
-          prospect_company_name: prospectData.company_name,
-          prospect_website_url: prospectData.website_url,
-          prospect_linkedin_url: prospectData.linkedin_url,
-          research_type: prospectData.research_type,
+          user_id: DEMO_USER_ID,
+          company_profile_id: companyProfile.data.id,
+          user_profile_id: userProfile.data.id,
+          prospect_company_name: data.companyName,
+          prospect_website_url: data.websiteUrl,
+          prospect_linkedin_url: data.linkedinUrl,
+          research_type: data.researchType || 'standard',
           webhook_url: webhookUrl,
-          notes: prospectData.notes,
-          status: 'pending' as const,
-          started_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+          status: 'pending'
+        });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // TODO: Call edge function to trigger research
-      // For now, just show success message
-      
       toast({
         title: "Research started successfully",
-        description: `Analysis for ${prospectData.company_name} has been initiated.`
+        description: "Your prospect research has been queued for processing."
       });
-      
+
       setCurrentView('dashboard');
     } catch (error) {
       console.error('Error starting research:', error);
       toast({
         title: "Error starting research",
-        description: "Please try again.",
+        description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive"
       });
     } finally {
