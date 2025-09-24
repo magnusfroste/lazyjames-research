@@ -75,65 +75,65 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Explorer 1100 Dark Theme - LABS inspired */
-    --background: 215 28% 8%;
-    --foreground: 210 20% 98%;
+    /* Apple-inspired Dark Theme - Sophisticated slate and warm orange */
+    --background: 210 25% 8%;
+    --foreground: 210 15% 92%;
     
-    --card: 215 28% 12%;
-    --card-foreground: 210 20% 98%;
+    --card: 210 25% 12%;
+    --card-foreground: 210 15% 92%;
     
-    --popover: 215 28% 12%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 210 25% 16%;
+    --popover-foreground: 210 15% 92%;
     
-    --primary: 220 90% 56%;
-    --primary-foreground: 215 28% 8%;
+    --primary: 20 95% 55%;
+    --primary-foreground: 210 25% 8%;
     
-    --secondary: 215 28% 15%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 210 15% 20%;
+    --secondary-foreground: 210 15% 92%;
     
-    --muted: 215 28% 15%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 15% 18%;
+    --muted-foreground: 210 10% 65%;
     
-    --accent: 215 28% 18%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 20 30% 25%;
+    --accent-foreground: 210 15% 92%;
     
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive: 0 65% 45%;
+    --destructive-foreground: 210 15% 92%;
     
-    --border: 225 71% 20%;
-    --input: 225 71% 20%;
-    --ring: 220 90% 56%;
+    --border: 210 20% 22%;
+    --input: 210 20% 22%;
+    --ring: 20 95% 55%;
     
-    /* Explorer 1100 Dark Brand Colors */
-    --explorer-orange: 20 100% 59%;
-    --explorer-deep-blue: 225 100% 15%;
-    --explorer-light-blue: 220 90% 56%;
+    /* Explorer 1100 Dark Brand Colors - Refined */
+    --explorer-orange: 20 95% 55%;
+    --explorer-deep-blue: 210 25% 12%;
+    --explorer-light-blue: 210 30% 45%;
     
-    /* Dark gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(225 100% 15%) 0%, hsl(220 90% 56%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(225 71% 20%) 0%, hsl(225 84% 12%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(20 100% 59% / 0.2) 0%, hsl(220 90% 56% / 0.2) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(225 100% 15%) 0%, hsl(220 90% 56%) 50%, hsl(20 100% 59%) 100%);
+    /* Apple-inspired dark gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 25% 12%) 0%, hsl(20 95% 55%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(210 20% 22%) 0%, hsl(210 25% 16%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(20 95% 55% / 0.15) 0%, hsl(210 30% 45% / 0.15) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 25% 12%) 0%, hsl(210 30% 45%) 50%, hsl(20 95% 55%) 100%);
     
-    /* Dark glow effects */
-    --glow-primary: 0 0 40px hsl(220 90% 56% / 0.4);
-    --glow-orange: 0 0 30px hsl(20 100% 59% / 0.4);
-    --glow-subtle: 0 0 20px hsl(220 90% 56% / 0.2);
+    /* Softer glow effects */
+    --glow-primary: 0 0 25px hsl(20 95% 55% / 0.3);
+    --glow-orange: 0 0 20px hsl(20 95% 55% / 0.4);
+    --glow-subtle: 0 0 15px hsl(20 95% 55% / 0.15);
     
-    /* Dark shadows */
-    --shadow-elegant: 0 8px 30px -8px hsl(225 100% 15% / 0.6);
-    --shadow-glow: 0 0 50px hsl(220 90% 56% / 0.3);
-    --shadow-card: 0 4px 20px -4px hsl(225 100% 15% / 0.4);
+    /* Warmer, softer shadows */
+    --shadow-elegant: 0 6px 25px -6px hsl(210 25% 8% / 0.7);
+    --shadow-glow: 0 0 35px hsl(20 95% 55% / 0.25);
+    --shadow-card: 0 3px 15px -3px hsl(210 25% 8% / 0.5);
     
-    /* Dark sidebar */
-    --sidebar-background: 225 84% 12%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 220 90% 56%;
-    --sidebar-primary-foreground: 225 100% 15%;
-    --sidebar-accent: 225 71% 20%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 225 71% 20%;
-    --sidebar-ring: 220 90% 56%;
+    /* Dark sidebar with orange accents */
+    --sidebar-background: 210 25% 10%;
+    --sidebar-foreground: 210 15% 92%;
+    --sidebar-primary: 20 95% 55%;
+    --sidebar-primary-foreground: 210 25% 8%;
+    --sidebar-accent: 210 20% 22%;
+    --sidebar-accent-foreground: 210 15% 92%;
+    --sidebar-border: 210 20% 22%;
+    --sidebar-ring: 20 95% 55%;
   }
 }
 
