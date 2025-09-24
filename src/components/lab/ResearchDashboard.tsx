@@ -298,6 +298,37 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     return 'text-red-600';
   };
 
+  const toggleStar = async (researchId: string, currentStarred: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('lab_prospect_research')
+        .update({ is_starred: !currentStarred })
+        .eq('id', researchId);
+
+      if (error) throw error;
+
+      // Update local state immediately for better UX
+      setResearch(prev => prev.map(item => 
+        item.id === researchId 
+          ? { ...item, is_starred: !currentStarred }
+          : item
+      ));
+
+      toast({
+        title: !currentStarred ? "Research starred" : "Research unstarred",
+        description: "Research item updated successfully.",
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('Error toggling star:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update star status.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const canStartResearch = companyProfile?.is_complete && userProfile?.is_complete;
 
   if (loading) {
@@ -427,7 +458,14 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
-                          {item.is_starred && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-yellow-100"
+                            onClick={() => toggleStar(item.id, item.is_starred || false)}
+                          >
+                            <Star className={`h-4 w-4 ${item.is_starred ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
+                          </Button>
                           {getStatusBadge(item.status)}
                         </div>
                         
@@ -494,12 +532,22 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               <Card key={item.id}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
-                      <p className="text-muted-foreground">{item.prospect_website_url}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Created {new Date(item.created_at).toLocaleDateString()}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
+                        <p className="text-muted-foreground">{item.prospect_website_url}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Created {new Date(item.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-yellow-100"
+                        onClick={() => toggleStar(item.id, item.is_starred || false)}
+                      >
+                        <Star className={`h-4 w-4 ${item.is_starred ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
+                      </Button>
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(item.status)}
@@ -527,14 +575,24 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               <Card key={item.id}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
-                      <p className="text-muted-foreground">{item.prospect_website_url}</p>
-                      {item.fit_score && (
-                        <p className={getFitScoreColor(item.fit_score)}>
-                          Fit Score: {item.fit_score}%
-                        </p>
-                      )}
+                    <div className="flex items-center gap-2">
+                      <div>
+                        <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
+                        <p className="text-muted-foreground">{item.prospect_website_url}</p>
+                        {item.fit_score && (
+                          <p className={getFitScoreColor(item.fit_score)}>
+                            Fit Score: {item.fit_score}%
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-yellow-100"
+                        onClick={() => toggleStar(item.id, item.is_starred || false)}
+                      >
+                        <Star className={`h-4 w-4 ${item.is_starred ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
+                      </Button>
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(item.status)}
@@ -564,12 +622,19 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
               <Card key={item.id}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                      <div>
                         <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
-                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                        <p className="text-muted-foreground">{item.prospect_website_url}</p>
                       </div>
-                      <p className="text-muted-foreground">{item.prospect_website_url}</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-yellow-100"
+                        onClick={() => toggleStar(item.id, item.is_starred || false)}
+                      >
+                        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                      </Button>
                     </div>
                     {getStatusBadge(item.status)}
                   </div>
