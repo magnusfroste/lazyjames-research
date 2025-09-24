@@ -143,7 +143,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
             <div>
               <h3 className="font-semibold mb-2">Executive Summary</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {results.executive_summary.summary}
+                {typeof results.executive_summary === 'string' ? results.executive_summary : results.executive_summary.summary}
               </p>
             </div>
           )}
@@ -168,9 +168,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['1_strategic_fit_relevance'] && (
+              {results.strategic_fit_relevance_analysis && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(results.analysis['1_strategic_fit_relevance']).map(([key, value], index) => (
+                  {Object.entries(results.strategic_fit_relevance_analysis).map(([key, value], index) => (
                     <AccordionItem key={index} value={`strategic-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
@@ -205,9 +205,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {research.decision_makers && (
+              {results.organization_decision_making_structure && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(research.decision_makers).map(([key, value], index) => (
+                  {Object.entries(results.organization_decision_making_structure).map(([key, value], index) => (
                     <AccordionItem key={index} value={`org-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
@@ -239,9 +239,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               <CardTitle>Technology & Innovation Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['5_technology_innovation_profile'] && (
+              {results.technology_innovation_profile && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(results.analysis['5_technology_innovation_profile']).map(([key, value], index) => (
+                  {Object.entries(results.technology_innovation_profile).map(([key, value], index) => (
                     <AccordionItem key={index} value={`tech-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
@@ -276,9 +276,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {research.contact_strategy && (
+              {results.contact_strategy_approach && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(research.contact_strategy).map(([key, value], index) => (
+                  {Object.entries(results.contact_strategy_approach).map(([key, value], index) => (
                     <AccordionItem key={index} value={`contact-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
@@ -301,11 +301,11 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
                 </Accordion>
               )}
 
-              {research.value_proposition && (
+              {results.personalized_outreach_recommendations && (
                 <div className="mt-6">
                   <h4 className="font-semibold mb-3">Personalized Outreach Recommendations</h4>
                   <Accordion type="single" collapsible>
-                    {Object.entries(research.value_proposition).map(([key, value], index) => (
+                    {Object.entries(results.personalized_outreach_recommendations).map(([key, value], index) => (
                       <AccordionItem key={index} value={`value-${index}`}>
                         <AccordionTrigger className="text-left">
                           {key.replace(/_/g, ' ')}
