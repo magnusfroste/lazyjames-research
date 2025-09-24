@@ -626,6 +626,15 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                       <div>
                         <h3 className="text-lg font-semibold">{item.prospect_company_name}</h3>
                         <p className="text-muted-foreground">{item.prospect_website_url}</p>
+                        {item.fit_score && (
+                          <p className="text-sm">
+                            <span className="text-muted-foreground">Fit Score: </span>
+                            <span className={getFitScoreColor(item.fit_score)}>{item.fit_score}/100</span>
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground">
+                          {item.research_type} • {new Date(item.created_at).toLocaleDateString()}
+                        </p>
                       </div>
                       <Button
                         variant="ghost"
