@@ -13,7 +13,7 @@ export function AppHeader() {
                 James 1100
               </h1>
               <p className="text-xs text-muted-foreground -mt-1">
-                Prospect Research Platform
+                Finds what you need ...
               </p>
             </div>
           </div>
