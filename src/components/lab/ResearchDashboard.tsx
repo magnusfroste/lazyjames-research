@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ResearchResults } from './ResearchResults';
 import { getExportFormat, exportResearchToPDF, exportToJSON } from '@/lib/exportUtils';
+import { parseAndSaveN8nResponse } from '@/lib/researchResponseUtils';
 
 interface ResearchItem {
   id: string;
@@ -201,43 +202,25 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           console.log('✅ Webhook response:', responseText);
           
           // Parse and save the n8n analysis response
-          try {
-            const responseData = JSON.parse(responseText);
-            const analysisOutput = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+          const parseResult = await parseAndSaveN8nResponse(
+            responseText, 
+            researchItem.id, 
+            researchItem.prospect_company_name
+          );
+          
+          if (parseResult.success) {
+            // Refresh the data to show updated results
+            loadData();
             
-            if (analysisOutput && analysisOutput.executive_summary) {
-              // Update the research record with parsed analysis
-              await supabase
-                .from('lab_prospect_research')
-                .update({
-                  status: 'completed',
-                  completed_at: new Date().toISOString(),
-                  fit_score: analysisOutput.executive_summary.fit_score,
-                  research_results: analysisOutput,
-                  decision_makers: analysisOutput.analysis?.['2_organization_decision_making'],
-                  contact_strategy: analysisOutput.analysis?.['7_contact_strategy_approach'],
-                  value_proposition: analysisOutput.analysis?.['8_personalized_outreach_recommendations']
-                })
-                .eq('id', researchItem.id);
-              
-              console.log('💾 Analysis saved to database');
-              
-              // Refresh the data to show updated results
-              loadData();
-              
-              toast({
-                title: "Analysis Complete!",
-                description: `Research analysis completed for ${researchItem.prospect_company_name} (Fit Score: ${analysisOutput.executive_summary.fit_score}/100)`,
-                duration: 5000
-              });
-            } else {
-              throw new Error('Invalid analysis response format');
-            }
-          } catch (parseError) {
-            console.error('❌ Failed to parse analysis response:', parseError);
+            toast({
+              title: "Analysis Complete!",
+              description: `Research analysis completed for ${researchItem.prospect_company_name}${parseResult.fitScore ? ` (Fit Score: ${parseResult.fitScore}/100)` : ''}`,
+              duration: 5000
+            });
+          } else {
             toast({
               title: "Analysis Received",
-              description: `Research data sent for ${researchItem.prospect_company_name}, but analysis parsing failed`,
+              description: `Research data sent for ${researchItem.prospect_company_name}, but analysis parsing failed: ${parseResult.error}`,
               variant: "destructive",
               duration: 5000
             });

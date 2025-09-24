@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useState } from 'react';
 import { enhanceWebhookPayload } from '@/lib/webhookPayloadUtils';
+import { parseAndSaveN8nResponse } from '@/lib/researchResponseUtils';
 
 const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';
 
@@ -67,34 +68,72 @@ const ResearchPage = () => {
         researchRecord.id
       );
 
-      // Send POST request to webhook endpoint
+      // Send POST request to webhook endpoint and wait for response
+      console.log('🚀 Sending webhook to:', webhookUrl);
+      console.log('📦 Payload:', JSON.stringify(webhookPayload, null, 2));
+      
       try {
         const response = await fetch(webhookUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(webhookPayload)
+          body: JSON.stringify(webhookPayload),
+          mode: 'cors'
         });
 
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+
         if (response.ok) {
-          console.log('✅ Webhook sent successfully');
-          toast({
-            title: "Research Started",
-            description: `Research initiated successfully. Research ID: ${researchRecord.id}`,
-            duration: 5000
-          });
+          const responseText = await response.text();
+          console.log('✅ Webhook response:', responseText);
+          
+          // Parse and save the n8n analysis response
+          const parseResult = await parseAndSaveN8nResponse(
+            responseText, 
+            researchRecord.id, 
+            data.company_name
+          );
+          
+          if (parseResult.success) {
+            toast({
+              title: "Analysis Complete!",
+              description: `Research analysis completed for ${data.company_name}${parseResult.fitScore ? ` (Fit Score: ${parseResult.fitScore}/100)` : ''}`,
+              duration: 5000
+            });
+          } else {
+            toast({
+              title: "Analysis Received",
+              description: `Research data sent for ${data.company_name}, but analysis parsing failed: ${parseResult.error}`,
+              variant: "destructive",
+              duration: 5000
+            });
+          }
         } else {
-          throw new Error(`Webhook failed: ${response.status}`);
+          const errorText = await response.text();
+          console.error('❌ Webhook error response:', errorText);
+          throw new Error(`Webhook failed: ${response.status} - ${errorText}`);
         }
       } catch (webhookError) {
-        console.error('Webhook error:', webhookError);
-        toast({
-          title: "Research Started (Webhook Failed)",
-          description: `Research created but webhook failed. Research ID: ${researchRecord.id}`,
-          variant: "destructive",
-          duration: 8000
-        });
+        console.error('🚨 Fetch error:', webhookError);
+        
+        // Check if it's a CORS error
+        if (webhookError instanceof TypeError && webhookError.message.includes('Failed to fetch')) {
+          toast({
+            title: "CORS Error", 
+            description: `Cannot reach ${webhookUrl} - likely a CORS issue. Check n8n webhook settings.`,
+            variant: "destructive",
+            duration: 8000
+          });
+        } else {
+          toast({
+            title: "Research Started (Webhook Failed)",
+            description: `Research created but webhook failed. Research ID: ${researchRecord.id}`,
+            variant: "destructive",
+            duration: 8000
+          });
+        }
       }
 
       navigate('/');
