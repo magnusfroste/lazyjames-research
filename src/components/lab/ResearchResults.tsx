@@ -139,11 +139,11 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               Export Analysis
             </Button>
           </div>
-          {results.Executive_Summary && (
+          {results.executive_summary && (
             <div>
               <h3 className="font-semibold mb-2">Executive Summary</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {results.Executive_Summary.Summary}
+                {results.executive_summary.summary}
               </p>
             </div>
           )}
@@ -168,9 +168,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results['1_Strategic_Fit_Relevance_Analysis'] && (
+              {results.analysis?.['1_strategic_fit_relevance'] && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(results['1_Strategic_Fit_Relevance_Analysis']).map(([key, value], index) => (
+                  {Object.entries(results.analysis['1_strategic_fit_relevance']).map(([key, value], index) => (
                     <AccordionItem key={index} value={`strategic-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
@@ -239,9 +239,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               <CardTitle>Technology & Innovation Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              {results['5_Technology_Innovation_Profile'] && (
+              {results.analysis?.['5_technology_innovation_profile'] && (
                 <Accordion type="single" collapsible>
-                  {Object.entries(results['5_Technology_Innovation_Profile']).map(([key, value], index) => (
+                  {Object.entries(results.analysis['5_technology_innovation_profile']).map(([key, value], index) => (
                     <AccordionItem key={index} value={`tech-${index}`}>
                       <AccordionTrigger className="text-left">
                         {key.replace(/_/g, ' ')}
