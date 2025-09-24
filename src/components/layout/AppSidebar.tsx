@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -50,10 +51,13 @@ export function AppSidebar() {
       collapsible="icon"
     >
       <SidebarContent className="py-4">
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-sidebar-foreground/60 font-semibold text-xs uppercase tracking-wider">
+        <div className="flex items-center justify-between px-4 mb-2">
+          <SidebarGroupLabel className="text-sidebar-foreground/60 font-semibold text-xs uppercase tracking-wider">
             Explorer 1100
           </SidebarGroupLabel>
+          <SidebarTrigger className="h-6 w-6 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors" />
+        </div>
+        <SidebarGroup>
           <SidebarGroupContent className="mt-2">
             <SidebarMenu>
               {items.map((item) => {
