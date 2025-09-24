@@ -217,7 +217,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
             <div>
               <h3 className="font-semibold mb-2">Executive Summary</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {typeof results.executive_summary === 'string' ? results.executive_summary : results.executive_summary.summary}
+                {typeof results.executive_summary === 'string' ? results.executive_summary : results.executive_summary.overall_assessment}
               </p>
             </div>
           )}
@@ -242,7 +242,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.strategic_fit_relevance_analysis && renderAccordion(results.strategic_fit_relevance_analysis, 'strategic')}
+              {results.analysis?.['1_strategic_fit_relevance'] && renderAccordion(results.analysis['1_strategic_fit_relevance'], 'strategic')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -256,7 +256,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.organization_decision_making_structure && renderAccordion(results.organization_decision_making_structure, 'org')}
+              {results.analysis?.['2_organization_decision_making'] && renderAccordion(results.analysis['2_organization_decision_making'], 'org')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -267,7 +267,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               <CardTitle>Technology & Innovation Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              {results.technology_innovation_profile && renderAccordion(results.technology_innovation_profile, 'tech')}
+              {results.analysis?.['5_technology_innovation_profile'] && renderAccordion(results.analysis['5_technology_innovation_profile'], 'tech')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -281,12 +281,12 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.contact_strategy_approach && renderAccordion(results.contact_strategy_approach, 'contact')}
+              {results.analysis?.['7_contact_strategy_approach'] && renderAccordion(results.analysis['7_contact_strategy_approach'], 'contact')}
 
-              {results.personalized_outreach_recommendations && (
+              {results.analysis?.['8_personalized_outreach_recommendations'] && (
                 <div className="mt-6">
                   <h4 className="font-semibold mb-3">Personalized Outreach Recommendations</h4>
-                  {renderAccordion(results.personalized_outreach_recommendations, 'value')}
+                  {renderAccordion(results.analysis['8_personalized_outreach_recommendations'], 'value')}
                 </div>
               )}
             </CardContent>
