@@ -17,10 +17,12 @@ import {
   Download,
   Filter,
   MoreHorizontal,
-  RefreshCw
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ResearchResults } from './ResearchResults';
 
 interface ResearchItem {
   id: string;
@@ -28,15 +30,25 @@ interface ResearchItem {
   prospect_website_url: string;
   prospect_linkedin_url?: string;
   research_type: string;
+  webhook_url: string;
   status: string;
-  fit_score?: number;
-  started_at?: string;
-  completed_at?: string;
   error_message?: string;
-  tags: string[];
+  tags?: string[];
   notes?: string;
-  is_starred: boolean;
+  fit_score: number | null;
+  research_results: any;
+  decision_makers: any;
+  contact_strategy: any;
+  value_proposition: any;
+  started_at?: string;
+  completed_at: string | null;
+  is_starred?: boolean;
+  exported_at?: string;
   created_at: string;
+  updated_at: string;
+  user_id: string;
+  company_profile_id: string;
+  user_profile_id: string;
 }
 
 interface CompanyProfile {
@@ -68,6 +80,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedResearch, setSelectedResearch] = useState<ResearchItem | null>(null);
   
   const { toast } = useToast();
 
@@ -184,11 +197,49 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
         if (response.ok) {
           const responseText = await response.text();
           console.log('✅ Webhook response:', responseText);
-          toast({
-            title: "Webhook Resent Successfully",
-            description: `Research data sent to n8n for ${researchItem.prospect_company_name}`,
-            duration: 3000
-          });
+          
+          // Parse and save the n8n analysis response
+          try {
+            const responseData = JSON.parse(responseText);
+            const analysisOutput = Array.isArray(responseData) ? responseData[0].output : responseData.output;
+            
+            if (analysisOutput && analysisOutput.Executive_Summary) {
+              // Update the research record with parsed analysis
+              await supabase
+                .from('lab_prospect_research')
+                .update({
+                  status: 'completed',
+                  completed_at: new Date().toISOString(),
+                  fit_score: analysisOutput.Executive_Summary.Fit_Score,
+                  research_results: analysisOutput,
+                  decision_makers: analysisOutput['2_Organization_Decision_Making_Structure'],
+                  contact_strategy: analysisOutput['7_Contact_Strategy_Approach'],
+                  value_proposition: analysisOutput['8_Personalized_Outreach_Recommendations']
+                })
+                .eq('id', researchItem.id);
+              
+              console.log('💾 Analysis saved to database');
+              
+              // Refresh the data to show updated results
+              loadData();
+              
+              toast({
+                title: "Analysis Complete!",
+                description: `Research analysis completed for ${researchItem.prospect_company_name} (Fit Score: ${analysisOutput.Executive_Summary.Fit_Score}/100)`,
+                duration: 5000
+              });
+            } else {
+              throw new Error('Invalid analysis response format');
+            }
+          } catch (parseError) {
+            console.error('❌ Failed to parse analysis response:', parseError);
+            toast({
+              title: "Analysis Received",
+              description: `Research data sent for ${researchItem.prospect_company_name}, but analysis parsing failed`,
+              variant: "destructive",
+              duration: 5000
+            });
+          }
         } else {
           const errorText = await response.text();
           console.error('❌ Webhook error response:', errorText);
@@ -487,6 +538,14 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(item.status)}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedResearch(item)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Analysis
+                      </Button>
                       <Button variant="outline" size="sm">
                         <Download className="h-4 w-4 mr-2" />
                         Export
@@ -520,6 +579,23 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Research Results Modal */}
+      {selectedResearch && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Research Analysis</h2>
+                <Button variant="ghost" onClick={() => setSelectedResearch(null)}>
+                  ×
+                </Button>
+              </div>
+              <ResearchResults research={selectedResearch} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

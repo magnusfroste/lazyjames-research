@@ -1,0 +1,337 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Copy, Download, Users, Target, MessageSquare, TrendingUp } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+interface ResearchItem {
+  id: string;
+  prospect_company_name: string;
+  prospect_website_url: string;
+  prospect_linkedin_url?: string;
+  research_type: string;
+  webhook_url: string;
+  status: string;
+  error_message?: string;
+  tags?: string[];
+  notes?: string;
+  fit_score: number | null;
+  research_results: any;
+  decision_makers: any;
+  contact_strategy: any;
+  value_proposition: any;
+  started_at?: string;
+  completed_at: string | null;
+  is_starred?: boolean;
+  exported_at?: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  company_profile_id: string;
+  user_profile_id: string;
+}
+
+interface ResearchResultsProps {
+  research: ResearchItem;
+}
+
+export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) => {
+  const { toast } = useToast();
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+
+  if (!research.research_results || research.status !== 'completed') {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{research.prospect_company_name}</CardTitle>
+          <CardDescription>Research analysis not yet available</CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  const results = research.research_results;
+  const fitScore = research.fit_score || 0;
+
+  const copyToClipboard = async (text: string, sectionName: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedSection(sectionName);
+      setTimeout(() => setCopiedSection(null), 2000);
+      toast({
+        title: "Copied!",
+        description: `${sectionName} copied to clipboard`,
+        duration: 2000
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy to clipboard",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const exportAnalysis = () => {
+    const exportData = {
+      company: research.prospect_company_name,
+      fitScore: research.fit_score,
+      analysis: research.research_results,
+      completedAt: research.completed_at
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${research.prospect_company_name.replace(/\s+/g, '_')}_analysis.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getFitScoreColor = (score: number) => {
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+  const formatSectionContent = (content: any) => {
+    if (typeof content === 'string') return content;
+    if (typeof content === 'object') {
+      return Object.entries(content)
+        .map(([key, value]) => `**${key.replace(/_/g, ' ')}**: ${value}`)
+        .join('\n\n');
+    }
+    return JSON.stringify(content, null, 2);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header with Fit Score */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl">{research.prospect_company_name}</CardTitle>
+              <CardDescription>Research Analysis Complete</CardDescription>
+            </div>
+            <div className="text-center">
+              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full text-white font-bold text-xl ${getFitScoreColor(fitScore)}`}>
+                {fitScore}
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">Fit Score</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4 mb-4">
+            <Badge variant="outline" className="flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
+              Completed
+            </Badge>
+            <Button variant="outline" size="sm" onClick={exportAnalysis}>
+              <Download className="w-4 h-4 mr-2" />
+              Export Analysis
+            </Button>
+          </div>
+          {results.Executive_Summary && (
+            <div>
+              <h3 className="font-semibold mb-2">Executive Summary</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {results.Executive_Summary.Summary}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Detailed Analysis Tabs */}
+      <Tabs defaultValue="strategic" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="strategic">Strategic Fit</TabsTrigger>
+          <TabsTrigger value="organization">Organization</TabsTrigger>
+          <TabsTrigger value="technology">Technology</TabsTrigger>
+          <TabsTrigger value="contact">Contact Strategy</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="strategic" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5" />
+                Strategic Fit & Relevance
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {results['1_Strategic_Fit_Relevance_Analysis'] && (
+                <Accordion type="single" collapsible>
+                  {Object.entries(results['1_Strategic_Fit_Relevance_Analysis']).map(([key, value], index) => (
+                    <AccordionItem key={index} value={`strategic-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        {key.replace(/_/g, ' ')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(value as string, key)}
+                            className={copiedSection === key ? "text-green-600" : ""}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="organization" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Organization & Decision Making
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {research.decision_makers && (
+                <Accordion type="single" collapsible>
+                  {Object.entries(research.decision_makers).map(([key, value], index) => (
+                    <AccordionItem key={index} value={`org-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        {key.replace(/_/g, ' ')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(value as string, key)}
+                            className={copiedSection === key ? "text-green-600" : ""}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="technology" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Technology & Innovation Profile</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {results['5_Technology_Innovation_Profile'] && (
+                <Accordion type="single" collapsible>
+                  {Object.entries(results['5_Technology_Innovation_Profile']).map(([key, value], index) => (
+                    <AccordionItem key={index} value={`tech-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        {key.replace(/_/g, ' ')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(value as string, key)}
+                            className={copiedSection === key ? "text-green-600" : ""}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="contact" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5" />
+                Contact Strategy & Recommendations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {research.contact_strategy && (
+                <Accordion type="single" collapsible>
+                  {Object.entries(research.contact_strategy).map(([key, value], index) => (
+                    <AccordionItem key={index} value={`contact-${index}`}>
+                      <AccordionTrigger className="text-left">
+                        {key.replace(/_/g, ' ')}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(value as string, key)}
+                            className={copiedSection === key ? "text-green-600" : ""}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+
+              {research.value_proposition && (
+                <div className="mt-6">
+                  <h4 className="font-semibold mb-3">Personalized Outreach Recommendations</h4>
+                  <Accordion type="single" collapsible>
+                    {Object.entries(research.value_proposition).map(([key, value], index) => (
+                      <AccordionItem key={index} value={`value-${index}`}>
+                        <AccordionTrigger className="text-left">
+                          {key.replace(/_/g, ' ')}
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="flex items-start justify-between gap-4">
+                            <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(value as string, key)}
+                              className={copiedSection === key ? "text-green-600" : ""}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
