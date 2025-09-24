@@ -16,6 +16,7 @@ import {
   FileText
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { getExportFormat, exportEvaluationResultsToPDF, exportToJSON } from '@/lib/exportUtils';
 
 interface ResultsDisplayProps {
   results: EvaluationResult[];
@@ -45,21 +46,31 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, isEvalu
     });
   };
 
-  const downloadResults = () => {
-    const dataStr = JSON.stringify(results, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  const downloadResults = async () => {
+    const format = getExportFormat();
     
-    const exportFileDefaultName = `prompt-evaluation-${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    toast({
-      title: "Downloaded!",
-      description: "Results downloaded as JSON file",
-    });
+    try {
+      if (format === 'pdf') {
+        await exportEvaluationResultsToPDF(results);
+        toast({
+          title: "PDF Downloaded!",
+          description: "Evaluation results exported as PDF",
+        });
+      } else {
+        const filename = `prompt-evaluation-${new Date().toISOString().split('T')[0]}.json`;
+        exportToJSON(results, filename);
+        toast({
+          title: "JSON Downloaded!",
+          description: "Evaluation results exported as JSON",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export results. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const formatResponse = (response: any): string => {

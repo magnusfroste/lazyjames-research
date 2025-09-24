@@ -2,10 +2,20 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getExportFormat, setExportFormat, ExportFormat } from "@/lib/exportUtils";
 
 export default function SettingsPage() {
-  const [exportFormat, setExportFormat] = useState("pdf");
+  const [exportFormat, setCurrentExportFormat] = useState<ExportFormat>("pdf");
+
+  useEffect(() => {
+    setCurrentExportFormat(getExportFormat());
+  }, []);
+
+  const handleExportFormatChange = (format: ExportFormat) => {
+    setCurrentExportFormat(format);
+    setExportFormat(format);
+  };
 
   return (
     <div className="space-y-6">
@@ -48,7 +58,7 @@ export default function SettingsPage() {
             <Label className="text-sm font-medium">Default Export Format</Label>
             <RadioGroup 
               value={exportFormat} 
-              onValueChange={setExportFormat}
+              onValueChange={handleExportFormatChange}
               className="flex flex-col space-y-2"
             >
               <div className="flex items-center space-x-2">

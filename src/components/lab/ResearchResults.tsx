@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, Download, Users, Target, MessageSquare, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getExportFormat, exportResearchToPDF, exportToJSON } from "@/lib/exportUtils";
 
 interface ResearchItem {
   id: string;
@@ -75,23 +76,38 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     }
   };
 
-  const exportAnalysis = () => {
-    const exportData = {
-      company: research.prospect_company_name,
-      fitScore: research.fit_score,
-      analysis: research.research_results,
-      completedAt: research.completed_at
-    };
+  const exportAnalysis = async () => {
+    const format = getExportFormat();
     
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${research.prospect_company_name.replace(/\s+/g, '_')}_analysis.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      if (format === 'pdf') {
+        await exportResearchToPDF(research);
+        toast({
+          title: "PDF Downloaded!",
+          description: "Research analysis exported as PDF",
+        });
+      } else {
+        const exportData = {
+          company: research.prospect_company_name,
+          fitScore: research.fit_score,
+          analysis: research.research_results,
+          completedAt: research.completed_at
+        };
+        
+        const filename = `${research.prospect_company_name.replace(/\s+/g, '_')}_analysis.json`;
+        exportToJSON(exportData, filename);
+        toast({
+          title: "JSON Downloaded!",
+          description: "Research analysis exported as JSON",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export analysis. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const getFitScoreColor = (score: number) => {
