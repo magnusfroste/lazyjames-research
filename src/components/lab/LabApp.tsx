@@ -6,6 +6,7 @@ import { UserProfileWizard } from './UserProfileWizard';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { enhanceWebhookPayload } from '@/lib/webhookPayloadUtils';
+import { generateN8nPromptConfig, formatN8nWebhookPayload } from '@/lib/n8nPromptManager';
 
 type ViewMode = 'dashboard' | 'company-profile' | 'user-profile' | 'research';
 
@@ -157,12 +158,18 @@ export const LabApp: React.FC = () => {
       const webhookUrl = webhookData?.webhook_url || 'https://example.com/webhook';
 
       // Prepare the enhanced webhook payload for n8n development
-      const webhookPayload = enhanceWebhookPayload(
+      const enhancedPayload = enhanceWebhookPayload(
         data,
         companyProfile.data,
         userProfile.data,
         null // Will be filled after database insert
       );
+
+      // Generate intelligent N8N prompt configuration
+      const promptConfig = generateN8nPromptConfig(enhancedPayload);
+      
+      // Format complete webhook payload with prompts and intelligence
+      const webhookPayload = formatN8nWebhookPayload(promptConfig);
 
       // Create the research record with FIXED field mapping
       const { data: researchRecord, error: insertError } = await supabase
@@ -185,7 +192,11 @@ export const LabApp: React.FC = () => {
       if (insertError) throw insertError;
 
       // Update payload with research ID
-      webhookPayload.research_id = researchRecord.id;
+      enhancedPayload.research_id = researchRecord.id;
+      promptConfig.enhancedPayload.research_id = researchRecord.id;
+      
+      // Regenerate final webhook payload with research ID
+      const finalWebhookPayload = formatN8nWebhookPayload(promptConfig);
 
       // Send POST request to webhook endpoint
       try {
@@ -194,7 +205,7 @@ export const LabApp: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(webhookPayload)
+          body: JSON.stringify(finalWebhookPayload)
         });
 
         if (response.ok) {
