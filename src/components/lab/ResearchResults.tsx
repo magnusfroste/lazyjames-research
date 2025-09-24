@@ -127,6 +127,63 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     return JSON.stringify(content, null, 2);
   };
 
+  const renderAccordion = (data: any, prefix: string) => {
+    const isExpanded = accordionExpansion === 'expanded';
+    const defaultValues = isExpanded ? Object.keys(data).map((_, index) => `${prefix}-${index}`) : undefined;
+
+    if (isExpanded) {
+      return (
+        <Accordion type="multiple" defaultValue={defaultValues}>
+          {Object.entries(data).map(([key, value], index) => (
+            <AccordionItem key={index} value={`${prefix}-${index}`}>
+              <AccordionTrigger className="text-left">
+                {key.replace(/_/g, ' ')}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="flex items-start justify-between gap-4">
+                  <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(value as string, key)}
+                    className={copiedSection === key ? "text-green-600" : ""}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      );
+    }
+
+    return (
+      <Accordion type="single" collapsible>
+        {Object.entries(data).map(([key, value], index) => (
+          <AccordionItem key={index} value={`${prefix}-${index}`}>
+            <AccordionTrigger className="text-left">
+              {key.replace(/_/g, ' ')}
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="flex items-start justify-between gap-4">
+                <p className="text-sm leading-relaxed flex-1">{value as string}</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(value as string, key)}
+                  className={copiedSection === key ? "text-green-600" : ""}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Fit Score */}
@@ -185,30 +242,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.strategic_fit_relevance_analysis && (
-                <Accordion type="single" collapsible defaultValue={accordionExpansion === 'expanded' ? 'strategic-0' : undefined}>
-                  {Object.entries(results.strategic_fit_relevance_analysis).map(([key, value], index) => (
-                    <AccordionItem key={index} value={`strategic-${index}`}>
-                      <AccordionTrigger className="text-left">
-                        {key.replace(/_/g, ' ')}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="flex items-start justify-between gap-4">
-                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(value as string, key)}
-                            className={copiedSection === key ? "text-green-600" : ""}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
+              {results.strategic_fit_relevance_analysis && renderAccordion(results.strategic_fit_relevance_analysis, 'strategic')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -222,30 +256,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.organization_decision_making_structure && (
-                <Accordion type="single" collapsible defaultValue={accordionExpansion === 'expanded' ? 'org-0' : undefined}>
-                  {Object.entries(results.organization_decision_making_structure).map(([key, value], index) => (
-                    <AccordionItem key={index} value={`org-${index}`}>
-                      <AccordionTrigger className="text-left">
-                        {key.replace(/_/g, ' ')}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="flex items-start justify-between gap-4">
-                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(value as string, key)}
-                            className={copiedSection === key ? "text-green-600" : ""}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
+              {results.organization_decision_making_structure && renderAccordion(results.organization_decision_making_structure, 'org')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -256,30 +267,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               <CardTitle>Technology & Innovation Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              {results.technology_innovation_profile && (
-                <Accordion type="single" collapsible defaultValue={accordionExpansion === 'expanded' ? 'tech-0' : undefined}>
-                  {Object.entries(results.technology_innovation_profile).map(([key, value], index) => (
-                    <AccordionItem key={index} value={`tech-${index}`}>
-                      <AccordionTrigger className="text-left">
-                        {key.replace(/_/g, ' ')}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="flex items-start justify-between gap-4">
-                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(value as string, key)}
-                            className={copiedSection === key ? "text-green-600" : ""}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
+              {results.technology_innovation_profile && renderAccordion(results.technology_innovation_profile, 'tech')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -293,56 +281,12 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.contact_strategy_approach && (
-                <Accordion type="single" collapsible defaultValue={accordionExpansion === 'expanded' ? 'contact-0' : undefined}>
-                  {Object.entries(results.contact_strategy_approach).map(([key, value], index) => (
-                    <AccordionItem key={index} value={`contact-${index}`}>
-                      <AccordionTrigger className="text-left">
-                        {key.replace(/_/g, ' ')}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="flex items-start justify-between gap-4">
-                          <p className="text-sm leading-relaxed flex-1">{value as string}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => copyToClipboard(value as string, key)}
-                            className={copiedSection === key ? "text-green-600" : ""}
-                          >
-                            <Copy className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
+              {results.contact_strategy_approach && renderAccordion(results.contact_strategy_approach, 'contact')}
 
               {results.personalized_outreach_recommendations && (
                 <div className="mt-6">
                   <h4 className="font-semibold mb-3">Personalized Outreach Recommendations</h4>
-                  <Accordion type="single" collapsible defaultValue={accordionExpansion === 'expanded' ? 'value-0' : undefined}>
-                    {Object.entries(results.personalized_outreach_recommendations).map(([key, value], index) => (
-                      <AccordionItem key={index} value={`value-${index}`}>
-                        <AccordionTrigger className="text-left">
-                          {key.replace(/_/g, ' ')}
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="flex items-start justify-between gap-4">
-                            <p className="text-sm leading-relaxed flex-1">{value as string}</p>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyToClipboard(value as string, key)}
-                              className={copiedSection === key ? "text-green-600" : ""}
-                            >
-                              <Copy className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                  {renderAccordion(results.personalized_outreach_recommendations, 'value')}
                 </div>
               )}
             </CardContent>
