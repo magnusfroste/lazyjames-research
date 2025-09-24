@@ -3,15 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState, useEffect } from "react";
-import { getExportFormat, setExportFormat, ExportFormat, getAccordionExpanded, setAccordionExpanded, AccordionExpansion } from "@/lib/exportUtils";
+import { getExportFormat, setExportFormat, ExportFormat, getAccordionExpanded, setAccordionExpanded, AccordionExpansion, getInsightsDisplayMode, setInsightsDisplayMode, InsightsDisplayMode } from "@/lib/exportUtils";
 
 export default function SettingsPage() {
   const [exportFormat, setCurrentExportFormat] = useState<ExportFormat>("pdf");
   const [accordionExpansion, setCurrentAccordionExpansion] = useState<AccordionExpansion>("collapsed");
+  const [insightsDisplayMode, setCurrentInsightsDisplayMode] = useState<InsightsDisplayMode>("accordion");
 
   useEffect(() => {
     setCurrentExportFormat(getExportFormat());
     setCurrentAccordionExpansion(getAccordionExpanded());
+    setCurrentInsightsDisplayMode(getInsightsDisplayMode());
   }, []);
 
   const handleExportFormatChange = (format: ExportFormat) => {
@@ -22,6 +24,11 @@ export default function SettingsPage() {
   const handleAccordionExpansionChange = (expansion: AccordionExpansion) => {
     setCurrentAccordionExpansion(expansion);
     setAccordionExpanded(expansion);
+  };
+
+  const handleInsightsDisplayModeChange = (mode: InsightsDisplayMode) => {
+    setCurrentInsightsDisplayMode(mode);
+    setInsightsDisplayMode(mode);
   };
 
   return (
@@ -110,6 +117,38 @@ export default function SettingsPage() {
                 <RadioGroupItem value="expanded" id="expanded" />
                 <Label htmlFor="expanded" className="text-sm">
                   Expanded - Show all content by default
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Insights Display Mode</CardTitle>
+          <CardDescription>
+            Choose how insights and analysis sections are displayed.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Display Style</Label>
+            <RadioGroup 
+              value={insightsDisplayMode} 
+              onValueChange={handleInsightsDisplayModeChange}
+              className="flex flex-col space-y-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="accordion" id="accordion" />
+                <Label htmlFor="accordion" className="text-sm">
+                  Accordion - Collapsible sections (compact)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="cards" id="cards" />
+                <Label htmlFor="cards" className="text-sm">
+                  Cards - Individual cards for each insight (spacious)
                 </Label>
               </div>
             </RadioGroup>

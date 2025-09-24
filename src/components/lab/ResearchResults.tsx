@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, Download, Users, Target, MessageSquare, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getExportFormat, exportResearchToPDF, exportToJSON, getAccordionExpanded } from "@/lib/exportUtils";
+import { exportResearchToPDF, exportToJSON, getExportFormat, getAccordionExpanded, getInsightsDisplayMode } from "@/lib/exportUtils";
 
 interface ResearchItem {
   id: string;
@@ -43,6 +43,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   const { toast } = useToast();
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const accordionExpansion = getAccordionExpanded();
+  const displayMode = getInsightsDisplayMode();
 
   if (!research.research_results || research.status !== 'completed') {
     return (
@@ -184,6 +185,41 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     );
   };
 
+  const renderAsCards = (data: any, prefix: string) => {
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+        {Object.entries(data).map(([key, value], index) => (
+          <Card key={index} className="h-fit">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-medium">
+                  {key.replace(/_/g, ' ')}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(formatSectionContent(value), key)}
+                  className={copiedSection === key ? "text-green-600" : ""}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {formatSectionContent(value)}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  const renderContent = (data: any, prefix: string) => {
+    return displayMode === 'cards' ? renderAsCards(data, prefix) : renderAccordion(data, prefix);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header with Fit Score */}
@@ -242,7 +278,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['1_strategic_fit_relevance'] && renderAccordion(results.analysis['1_strategic_fit_relevance'], 'strategic')}
+              {results.analysis?.['1_strategic_fit_relevance'] && renderContent(results.analysis['1_strategic_fit_relevance'], 'strategic')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -256,7 +292,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['2_organization_decision_making'] && renderAccordion(results.analysis['2_organization_decision_making'], 'org')}
+              {results.analysis?.['2_organization_decision_making'] && renderContent(results.analysis['2_organization_decision_making'], 'org')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -267,7 +303,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               <CardTitle>Technology & Innovation Profile</CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['5_technology_innovation_profile'] && renderAccordion(results.analysis['5_technology_innovation_profile'], 'tech')}
+              {results.analysis?.['5_technology_innovation_profile'] && renderContent(results.analysis['5_technology_innovation_profile'], 'tech')}
             </CardContent>
           </Card>
         </TabsContent>
@@ -281,12 +317,12 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {results.analysis?.['7_contact_strategy_approach'] && renderAccordion(results.analysis['7_contact_strategy_approach'], 'contact')}
+              {results.analysis?.['7_contact_strategy_approach'] && renderContent(results.analysis['7_contact_strategy_approach'], 'contact')}
 
               {results.analysis?.['8_personalized_outreach_recommendations'] && (
                 <div className="mt-6">
                   <h4 className="font-semibold mb-3">Personalized Outreach Recommendations</h4>
-                  {renderAccordion(results.analysis['8_personalized_outreach_recommendations'], 'value')}
+                  {renderContent(results.analysis['8_personalized_outreach_recommendations'], 'value')}
                 </div>
               )}
             </CardContent>

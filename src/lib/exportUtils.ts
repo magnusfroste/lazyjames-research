@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 
 export type ExportFormat = 'pdf' | 'json';
 export type AccordionExpansion = 'collapsed' | 'expanded';
+export type InsightsDisplayMode = 'accordion' | 'cards';
 
 // Get export format from settings (localStorage for now)
 export const getExportFormat = (): ExportFormat => {
@@ -22,6 +23,16 @@ export const getAccordionExpanded = (): AccordionExpansion => {
 // Save accordion expansion preference to settings
 export const setAccordionExpanded = (expansion: AccordionExpansion) => {
   localStorage.setItem('accordionExpanded', expansion);
+};
+
+// Get insights display mode from settings
+export const getInsightsDisplayMode = (): InsightsDisplayMode => {
+  return (localStorage.getItem('insightsDisplayMode') as InsightsDisplayMode) || 'accordion';
+};
+
+// Save insights display mode to settings
+export const setInsightsDisplayMode = (mode: InsightsDisplayMode) => {
+  localStorage.setItem('insightsDisplayMode', mode);
 };
 
 // PDF Export utility for research results
