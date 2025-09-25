@@ -13,7 +13,7 @@ export function AppHeader() {
                 James 1100
               </h1>
               <p className="text-xs text-muted-foreground -mt-1">
-                Saves your time by bringing actionable insights ... 
+                Actionable insights in less time, helps you focus on what matters! 
               </p>
             </div>
           </div>
