@@ -81,6 +81,31 @@ export const exportResearchToPDF = async (research: any): Promise<void> => {
       return yPosition;
     };
 
+    // Section mapping (same as UI)
+    const getSectionTitle = (key: string) => {
+      const sectionTitles: Record<string, string> = {
+        strategic_fit: "Strategic Fit & Relevance",
+        decision_makers: "Organization & Decision Making",
+        technology_profile: "Technology & Innovation Profile",
+        contact_strategy: "Contact Strategy & Recommendations",
+        business_impact: "Business Impact & Financial Intelligence",
+        challenges_position: "Current Challenges & Market Position",
+        change_capacity: "Change Capacity & Digital Maturity"
+      };
+      
+      return sectionTitles[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Clean markdown text for PDF
+    const cleanMarkdownText = (text: string) => {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
+        .replace(/#{1,6}\s/g, '') // Remove headers
+        .replace(/\n\s*\n/g, '\n\n') // Normalize line breaks
+        .trim();
+    };
+
     // Header
     addWrappedText(`Research Analysis Report`, 18, true);
     addWrappedText(`Company: ${research.prospect_company_name}`, 14, true);
@@ -88,72 +113,34 @@ export const exportResearchToPDF = async (research: any): Promise<void> => {
     yPosition += 10;
 
     // Fit Score
-    if (research.fit_score !== null) {
+    if (research.fit_score !== null && research.fit_score !== undefined) {
       addWrappedText(`Fit Score: ${research.fit_score}/100`, 14, true);
       yPosition += 5;
     }
 
-    // Executive Summary
+    // Executive Summary (handled separately)
     if (research.research_results?.executive_summary) {
       addWrappedText('Executive Summary', 16, true);
       const summary = typeof research.research_results.executive_summary === 'string' 
         ? research.research_results.executive_summary 
-        : research.research_results.executive_summary.summary;
-      addWrappedText(summary, 11);
+        : String(research.research_results.executive_summary);
+      addWrappedText(cleanMarkdownText(summary), 11);
       yPosition += 10;
     }
 
-    // Strategic Fit Analysis
-    if (research.research_results?.strategic_fit_relevance_analysis) {
-      addWrappedText('Strategic Fit & Relevance Analysis', 16, true);
-      Object.entries(research.research_results.strategic_fit_relevance_analysis).forEach(([key, value]) => {
-        addWrappedText(`${key.replace(/_/g, ' ')}:`, 12, true);
-        addWrappedText(value as string, 11);
-        yPosition += 5;
-      });
-      yPosition += 10;
-    }
+    // Dynamic sections (all fields except executive_summary)
+    if (research.research_results && typeof research.research_results === 'object') {
+      const sections = Object.entries(research.research_results)
+        .filter(([key]) => key !== 'executive_summary')
+        .filter(([, value]) => value && String(value).trim());
 
-    // Organization Analysis
-    if (research.research_results?.organization_decision_making_structure) {
-      addWrappedText('Organization & Decision Making Structure', 16, true);
-      Object.entries(research.research_results.organization_decision_making_structure).forEach(([key, value]) => {
-        addWrappedText(`${key.replace(/_/g, ' ')}:`, 12, true);
-        addWrappedText(value as string, 11);
-        yPosition += 5;
-      });
-      yPosition += 10;
-    }
-
-    // Technology Profile
-    if (research.research_results?.technology_innovation_profile) {
-      addWrappedText('Technology & Innovation Profile', 16, true);
-      Object.entries(research.research_results.technology_innovation_profile).forEach(([key, value]) => {
-        addWrappedText(`${key.replace(/_/g, ' ')}:`, 12, true);
-        addWrappedText(value as string, 11);
-        yPosition += 5;
-      });
-      yPosition += 10;
-    }
-
-    // Contact Strategy
-    if (research.research_results?.contact_strategy_approach) {
-      addWrappedText('Contact Strategy & Approach', 16, true);
-      Object.entries(research.research_results.contact_strategy_approach).forEach(([key, value]) => {
-        addWrappedText(`${key.replace(/_/g, ' ')}:`, 12, true);
-        addWrappedText(value as string, 11);
-        yPosition += 5;
-      });
-      yPosition += 10;
-    }
-
-    // Personalized Outreach
-    if (research.research_results?.personalized_outreach_recommendations) {
-      addWrappedText('Personalized Outreach Recommendations', 16, true);
-      Object.entries(research.research_results.personalized_outreach_recommendations).forEach(([key, value]) => {
-        addWrappedText(`${key.replace(/_/g, ' ')}:`, 12, true);
-        addWrappedText(value as string, 11);
-        yPosition += 5;
+      sections.forEach(([key, value]) => {
+        const sectionTitle = getSectionTitle(key);
+        addWrappedText(sectionTitle, 16, true);
+        
+        const content = typeof value === 'string' ? value : String(value);
+        addWrappedText(cleanMarkdownText(content), 11);
+        yPosition += 10;
       });
     }
 
