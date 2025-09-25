@@ -259,7 +259,6 @@ export const LabApp: React.FC = () => {
           <ResearchInitiator
             onSubmit={handleStartResearch}
             onCancel={() => setCurrentView('dashboard')}
-            isLoading={isLoading}
           />
         );
         

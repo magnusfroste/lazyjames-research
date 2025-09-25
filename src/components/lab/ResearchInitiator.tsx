@@ -20,13 +20,11 @@ interface ProspectData {
 interface ResearchInitiatorProps {
   onSubmit: (data: ProspectData) => void;
   onCancel: () => void;
-  isLoading: boolean;
 }
 
 export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
   onSubmit,
-  onCancel,
-  isLoading
+  onCancel
 }) => {
   const [formData, setFormData] = useState<ProspectData>({
     company_name: '',
@@ -39,6 +37,7 @@ export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
   const [validation, setValidation] = useState<{[key: string]: string}>({});
   const [companyProfile, setCompanyProfile] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const { toast } = useToast();
 
@@ -111,7 +110,7 @@ export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
     return url.startsWith('http') ? url : `https://${url}`;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -123,6 +122,8 @@ export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
       return;
     }
 
+    setIsSubmitting(true);
+
     // Normalize URLs
     const normalizedData = {
       ...formData,
@@ -130,7 +131,11 @@ export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
       linkedin_url: normalizeUrl(formData.linkedin_url)
     };
 
-    onSubmit(normalizedData);
+    try {
+      await onSubmit(normalizedData);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const canSubmit = companyProfile && userProfile;
@@ -304,13 +309,13 @@ export const ResearchInitiator: React.FC<ResearchInitiatorProps> = ({
             
             <Button 
               type="submit" 
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="flex items-center gap-2"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Starting Research...
+                  Submitting...
                 </>
               ) : (
                 <>

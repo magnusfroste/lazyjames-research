@@ -89,17 +89,23 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
 
   useEffect(() => {
     loadData();
-    
-    // Set up polling for pending research updates
-    const interval = setInterval(() => {
-      const hasPendingResearch = research.some(item => item.status === 'pending');
-      if (hasPendingResearch) {
-        loadData();
-      }
-    }, 5000); // Poll every 5 seconds if there's pending research
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [research]);
+  // Set up polling for pending research
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    const hasPending = research.some(r => r.status === 'pending');
+    if (hasPending) {
+      interval = setInterval(() => {
+        loadData();
+      }, 3000); // Poll every 3 seconds when there's pending research
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [research.filter(r => r.status === 'pending').length]); // Only depend on pending count
 
   // Dummy user ID for POC demo
   const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';

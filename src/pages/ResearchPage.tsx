@@ -2,7 +2,6 @@ import { ResearchInitiator } from "@/components/lab/ResearchInitiator";
 import { useNavigate } from "react-router-dom";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useState } from 'react';
 import { enhanceWebhookPayload } from '@/lib/webhookPayloadUtils';
 import { parseAndSaveN8nResponse } from '@/lib/researchResponseUtils';
 
@@ -11,11 +10,9 @@ const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';
 const ResearchPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleStartResearch = async (data: any) => {
     try {
-      setIsLoading(true);
 
       // Get the user's company and user profiles
       const [companyProfile, userProfile] = await Promise.all([
@@ -144,8 +141,6 @@ const ResearchPage = () => {
         description: error instanceof Error ? error.message : "Please try again.",
         variant: "destructive"
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -153,7 +148,6 @@ const ResearchPage = () => {
     <ResearchInitiator
       onSubmit={handleStartResearch}
       onCancel={() => navigate('/')}
-      isLoading={isLoading}
     />
   );
 };
