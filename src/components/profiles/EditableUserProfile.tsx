@@ -215,13 +215,39 @@ export function EditableUserProfile() {
   const completionPercentage = (() => {
     const requiredFields = ['full_name', 'role_in_organization', 'communication_style'];
     const completedRequired = requiredFields.filter(field => profile[field as keyof UserProfile]).length;
-    const optionalFields = ['linkedin_profile', 'outreach_experience', 'prospects_per_week', 'introduction_style'];
+    
+    const optionalFields = [
+      'linkedin_profile', 
+      'outreach_experience', 
+      'prospects_per_week', 
+      'introduction_style',
+      'followup_timing',
+      'nonresponse_handling',
+      'expertise_positioning',
+      'meeting_duration'
+    ];
     const completedOptional = optionalFields.filter(field => {
       const value = profile[field as keyof UserProfile];
       return Array.isArray(value) ? value.length > 0 : !!value;
     }).length;
+
+    const arrayFields = [
+      'preferred_contact_channel',
+      'credibility_preference',
+      'pain_points_focus',
+      'objection_handling',
+      'meeting_format',
+      'success_metrics'
+    ];
+    const completedArrays = arrayFields.filter(field => {
+      const value = profile[field as keyof UserProfile] as string[];
+      return Array.isArray(value) && value.length > 0;
+    }).length;
     
-    return Math.round(((completedRequired / requiredFields.length) * 70) + ((completedOptional / optionalFields.length) * 30));
+    const totalOptional = optionalFields.length + arrayFields.length;
+    const totalCompleted = completedOptional + completedArrays;
+    
+    return Math.round(((completedRequired / requiredFields.length) * 60) + ((totalCompleted / totalOptional) * 40));
   })();
 
   if (showWizard) {
@@ -558,51 +584,290 @@ export function EditableUserProfile() {
         <Card>
           <CardHeader>
             <CardTitle>Outreach Preferences</CardTitle>
-            <CardDescription>Your preferences for follow-up and meeting formats</CardDescription>
+            <CardDescription>Your preferences for follow-up and contact approach</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="followup_timing">Follow-up Timing</Label>
+              <Label>Follow-up Timing Preference</Label>
               {isEditing ? (
-                <Input
-                  id="followup_timing"
-                  value={profile.followup_timing}
-                  onChange={(e) => updateField('followup_timing', e.target.value)}
-                  placeholder="e.g., Quick & persistent, Moderate & respectful"
-                />
+                <RadioGroup 
+                  value={profile.followup_timing} 
+                  onValueChange={(value) => updateField('followup_timing', value)}
+                  className="grid grid-cols-1 gap-2 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="quick" id="timing-quick" />
+                    <Label htmlFor="timing-quick">Quick & persistent (within 3 days)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="moderate" id="timing-moderate" />
+                    <Label htmlFor="timing-moderate">Moderate & respectful (within 1 week)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="patient" id="timing-patient" />
+                    <Label htmlFor="timing-patient">Patient & strategic (within 2 weeks)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="varies" id="timing-varies" />
+                    <Label htmlFor="timing-varies">Varies per prospect</Label>
+                  </div>
+                </RadioGroup>
               ) : (
                 <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.followup_timing || 'Not specified'}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="meeting_duration">Meeting Duration</Label>
+              <Label>Non-response Handling</Label>
               {isEditing ? (
-                <Input
-                  id="meeting_duration"
-                  value={profile.meeting_duration}
-                  onChange={(e) => updateField('meeting_duration', e.target.value)}
-                  placeholder="e.g., 15 minutes, 30 minutes, 1 hour"
-                />
+                <RadioGroup 
+                  value={profile.nonresponse_handling} 
+                  onValueChange={(value) => updateField('nonresponse_handling', value)}
+                  className="grid grid-cols-1 gap-2 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="persistent" id="response-persistent" />
+                    <Label htmlFor="response-persistent">Multiple follow-ups until clear 'no'</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="moderate" id="response-moderate" />
+                    <Label htmlFor="response-moderate">2-3 attempts then move on</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="minimal" id="response-minimal" />
+                    <Label htmlFor="response-minimal">1 follow-up then stop</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="depends" id="response-depends" />
+                    <Label htmlFor="response-depends">Depends on prospect value/fit</Label>
+                  </div>
+                </RadioGroup>
               ) : (
-                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.meeting_duration || 'Not specified'}</p>
+                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.nonresponse_handling || 'Not specified'}</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Value Proposition & Messaging */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Value Proposition & Messaging</CardTitle>
+            <CardDescription>How you position your expertise and handle objections</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Pain Points Usually Addressed First</Label>
+              {isEditing ? (
+                <div className="grid grid-cols-1 gap-2 mt-2">
+                  {[
+                    'Cost/efficiency issues',
+                    'Growth/scaling challenges',
+                    'Technology/digital gaps',
+                    'Compliance/risk issues',
+                    'Process/operational friction',
+                    'Team/organizational challenges',
+                    'Customer experience problems'
+                  ].map(pain => (
+                    <div key={pain} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`pain-${pain}`}
+                        checked={profile.pain_points_focus.includes(pain)}
+                        onCheckedChange={(checked) => handleArrayField('pain_points_focus', pain, checked as boolean)}
+                      />
+                      <Label htmlFor={`pain-${pain}`} className="text-sm">{pain}</Label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-2 px-3 border rounded-md bg-muted/30 min-h-[40px]">
+                  {profile.pain_points_focus.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {profile.pain_points_focus.map((pain, index) => (
+                        <Badge key={index} variant="secondary">{pain}</Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Not specified</span>
+                  )}
+                </div>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Meeting Formats</Label>
+              <Label>Expertise Positioning</Label>
               {isEditing ? (
-                <Input
-                  value={profile.meeting_format.join(', ')}
-                  onChange={(e) => updateField('meeting_format', e.target.value.split(', ').filter(Boolean))}
-                  placeholder="e.g., Video call, In-person, Phone call"
-                />
+                <RadioGroup 
+                  value={profile.expertise_positioning} 
+                  onValueChange={(value) => updateField('expertise_positioning', value)}
+                  className="grid grid-cols-1 gap-2 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="specialist" id="pos-specialist" />
+                    <Label htmlFor="pos-specialist">As industry specialist/expert</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="problem-solver" id="pos-problem" />
+                    <Label htmlFor="pos-problem">As problem solver/consultant</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="partner" id="pos-partner" />
+                    <Label htmlFor="pos-partner">As strategic partner/advisor</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="innovator" id="pos-innovator" />
+                    <Label htmlFor="pos-innovator">As innovative solution provider</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="implementer" id="pos-implementer" />
+                    <Label htmlFor="pos-implementer">As results-driven implementer</Label>
+                  </div>
+                </RadioGroup>
+              ) : (
+                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.expertise_positioning || 'Not specified'}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Objection Handling Approach</Label>
+              {isEditing ? (
+                <div className="grid grid-cols-1 gap-2 mt-2">
+                  {[
+                    'Address upfront in initial message',
+                    'Respond when objections arise',
+                    'Use social proof to preempt',
+                    'Ask questions to understand concerns',
+                    'Provide alternatives/flexibility'
+                  ].map(approach => (
+                    <div key={approach} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`objection-${approach}`}
+                        checked={profile.objection_handling.includes(approach)}
+                        onCheckedChange={(checked) => handleArrayField('objection_handling', approach, checked as boolean)}
+                      />
+                      <Label htmlFor={`objection-${approach}`} className="text-sm">{approach}</Label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-2 px-3 border rounded-md bg-muted/30 min-h-[40px]">
+                  {profile.objection_handling.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {profile.objection_handling.map((approach, index) => (
+                        <Badge key={index} variant="secondary">{approach}</Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Not specified</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Meeting & Conversion Preferences */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Meeting & Conversion Preferences</CardTitle>
+            <CardDescription>Your preferences for meetings and success tracking</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Preferred Meeting Format</Label>
+              {isEditing ? (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {[
+                    'Video call (Teams/Zoom)',
+                    'Phone call',
+                    'In-person meeting',
+                    'Coffee meeting (informal)',
+                    "Prospect's office visit",
+                    'Flexible - prospect choice'
+                  ].map(format => (
+                    <div key={format} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`meeting-${format}`}
+                        checked={profile.meeting_format.includes(format)}
+                        onCheckedChange={(checked) => handleArrayField('meeting_format', format, checked as boolean)}
+                      />
+                      <Label htmlFor={`meeting-${format}`} className="text-sm">{format}</Label>
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="py-2 px-3 border rounded-md bg-muted/30 min-h-[40px]">
                   {profile.meeting_format.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {profile.meeting_format.map((format, index) => (
                         <Badge key={index} variant="outline">{format}</Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Not specified</span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Typical Meeting Duration</Label>
+              {isEditing ? (
+                <RadioGroup 
+                  value={profile.meeting_duration} 
+                  onValueChange={(value) => updateField('meeting_duration', value)}
+                  className="grid grid-cols-1 gap-2 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="15-30" id="duration-15-30" />
+                    <Label htmlFor="duration-15-30">15-30 minutes (quick qualification)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="30-45" id="duration-30-45" />
+                    <Label htmlFor="duration-30-45">30-45 minutes (standard discovery)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="45-60" id="duration-45-60" />
+                    <Label htmlFor="duration-45-60">45-60 minutes (deep dive)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="60+" id="duration-60-plus" />
+                    <Label htmlFor="duration-60-plus">60+ minutes (comprehensive)</Label>
+                  </div>
+                </RadioGroup>
+              ) : (
+                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.meeting_duration || 'Not specified'}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Success Metrics for Outreach</Label>
+              {isEditing ? (
+                <div className="grid grid-cols-1 gap-2 mt-2">
+                  {[
+                    'Response rate %',
+                    'Meeting booking rate %',
+                    'Qualified opportunities',
+                    'Conversion to proposal',
+                    'Closed deals',
+                    'All of the above'
+                  ].map(metric => (
+                    <div key={metric} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`metric-${metric}`}
+                        checked={profile.success_metrics.includes(metric)}
+                        onCheckedChange={(checked) => handleArrayField('success_metrics', metric, checked as boolean)}
+                      />
+                      <Label htmlFor={`metric-${metric}`} className="text-sm">{metric}</Label>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-2 px-3 border rounded-md bg-muted/30 min-h-[40px]">
+                  {profile.success_metrics.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {profile.success_metrics.map((metric, index) => (
+                        <Badge key={index} variant="secondary">{metric}</Badge>
                       ))}
                     </div>
                   ) : (
