@@ -33,6 +33,34 @@ export interface EnhancedWebhookPayload {
 }
 
 /**
+ * Maps company profile from database format to N8N expected format
+ */
+function mapCompanyProfile(companyProfile: any) {
+  if (!companyProfile) return companyProfile;
+  
+  return {
+    ...companyProfile,
+    // Map database fields to expected N8N payload fields
+    target_market: companyProfile.ideal_client_size,
+    value_propositions: companyProfile.unique_differentiators,
+  };
+}
+
+/**
+ * Maps user profile from database format to N8N expected format
+ */
+function mapUserProfile(userProfile: any) {
+  if (!userProfile) return userProfile;
+  
+  return {
+    ...userProfile,
+    // Map database fields to expected N8N payload fields  
+    job_title: userProfile.role_in_organization,
+    years_experience: userProfile.outreach_experience,
+  };
+}
+
+/**
  * Enhances the webhook payload with intelligent processing hints for n8n workflows
  */
 export function enhanceWebhookPayload(
@@ -71,8 +99,8 @@ export function enhanceWebhookPayload(
       research_type: researchType,
       notes: prospectData.notes || ''
     },
-    company_profile: companyProfile,
-    user_profile: userProfile,
+    company_profile: mapCompanyProfile(companyProfile),
+    user_profile: mapUserProfile(userProfile),
     timestamp: new Date().toISOString(),
     research_id: researchId,
     processing_hints: processingHints,
