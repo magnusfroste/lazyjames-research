@@ -16,6 +16,12 @@ This guide provides comprehensive development guidelines, best practices, and pr
 - **Immutable Data**: Use immutable patterns for state management
 - **Error Boundaries**: Comprehensive error handling and user feedback
 
+### 3. Dynamic Architecture Principles
+- **Future-Proof Design**: Components adapt automatically to new data structures
+- **N8N System Prompt Master**: All content structure controlled by N8N system prompt
+- **Zero Code Changes**: New analysis sections integrate without frontend changes
+- **JSONB Flexibility**: Embrace flexible data structures over rigid schemas
+
 ## Project Structure
 
 ```
@@ -36,6 +42,8 @@ docs/
 ├── n8n/                # N8N integration guides  
 ├── payload/            # Payload structure documentation
 ├── development/        # Development guidelines
+├── response/            # Dynamic response parsing documentation
+├── exports/             # Export system documentation  
 └── README.md           # Documentation index
 ```
 
@@ -411,6 +419,8 @@ if (!config.supabaseUrl || !config.supabaseAnonKey) {
 
 ### 2. Architecture Documentation
 - Keep architecture docs up to date
-- Document integration patterns
+- Document integration patterns  
 - Maintain API documentation
 - Update deployment guides
+- **Document dynamic architecture patterns**: How components handle flexible data structures
+- **N8N Integration Docs**: Keep system prompt and response structure documentation current

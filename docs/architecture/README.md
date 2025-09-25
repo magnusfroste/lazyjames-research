@@ -39,9 +39,10 @@ graph TD
 - **Response Formatting**: Ensures proper JSON structure
 
 ### 4. AI Analysis Engine
-- **System Prompt**: Wassching Method framework implementation
-- **Dynamic Adaptation**: Analysis depth and focus based on payload hints
-- **Structured Output**: Consistent JSON response format
+- **System Prompt**: Master controller for all content structure and sections
+- **Dynamic Content Generation**: AI creates any sections based on system prompt
+- **JSONB Storage**: Flexible storage for any AI-generated analysis structure
+- **Auto-Adaptation**: UI and exports automatically handle new sections
 
 ## Data Flow
 
@@ -63,7 +64,7 @@ Enhanced Payload → N8N Webhook → AI Node (System Prompt) → JSON Response
 
 ### 3. Response Handling
 ```
-JSON Response → Parser → Validation → Display Components
+JSON Response → Dynamic Parser → JSONB Storage → Dynamic UI Rendering → Auto-Export
 ```
 
 ## Key Features
@@ -74,16 +75,17 @@ JSON Response → Parser → Validation → Display Components
 - **Experience Level**: Output complexity adjustment
 - **Company Maturity**: Context-aware insights
 
-### Wassching Method Integration
-- 8-section comprehensive analysis framework
-- Strategic fit scoring (0-100)
-- Decision maker identification
-- Personalized outreach recommendations
+### Dynamic Content Architecture
+- **Master Control**: N8N system prompt defines all content structure
+- **Flexible Sections**: AI generates any sections based on system prompt
+- **Auto-Discovery**: Frontend automatically displays all generated sections
+- **Future-Proof Design**: New sections appear automatically without code changes
 
-### Adaptive Analysis Depth
-- **Quick Research**: Core sections (Strategic Fit + Decision-Making + Contact Strategy)
-- **Standard Research**: Full 8-section analysis
-- **Deep Research**: Extended competitive intelligence and financial projections
+### Adaptive Analysis Framework
+- **System Prompt Driven**: All analysis structure controlled by N8N system prompt
+- **JSONB Flexibility**: Dynamic storage accommodates any AI-generated structure
+- **Zero Code Changes**: New sections automatically integrate into UI and exports
+- **Content Evolution**: Analysis framework evolves through system prompt updates only
 
 ## Technology Stack
 
@@ -101,8 +103,9 @@ JSON Response → Parser → Validation → Display Components
 
 ### AI Processing
 - **Claude/GPT-4** (configured in N8N)
-- **Wassching Method** analysis framework
-- **JSON-structured** responses
+- **Dynamic Analysis Framework** (system prompt controlled)
+- **JSONB-structured** responses (flexible schema)
+- **Content Master Control** via N8N system prompt
 
 ## Security Considerations
 

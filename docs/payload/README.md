@@ -4,7 +4,7 @@ This document describes the enhanced webhook payload structure used by the Resea
 
 ## Overview
 
-The enhanced payload combines prospect data, user profiles, company profiles, and intelligent processing hints to enable context-aware AI analysis. This structure allows for personalized, adaptive research that adjusts based on user experience, company maturity, and specific focus areas.
+The enhanced payload provides **stable input structure** to N8N workflows while enabling **flexible output generation**. The payload structure remains consistent, but the AI response structure is completely dynamic and controlled by the N8N system prompt. This enables personalized, adaptive research where new analysis sections can be added without any frontend code changes.
 
 ## Complete Payload Structure
 

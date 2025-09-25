@@ -73,8 +73,14 @@ The webhook receives an enhanced payload with the following structure:
 - **Temperature**: 0.1-0.3 (for consistent, structured output)
 - **Max Tokens**: 4000-6000 (depending on research depth)
 
-### 2. System Prompt
-The system prompt is stored in [system-prompt.md](./system-prompt.md) and should be copied into the AI node's system prompt field.
+### 2. System Prompt - Master Content Controller
+The system prompt in [system-prompt.md](./system-prompt.md) is the **master controller** for all analysis content and structure. Any sections, analysis frameworks, or output formats defined in the system prompt will automatically:
+- Be saved to the JSONB `research_results` field
+- Appear dynamically in the frontend UI
+- Be included automatically in PDF and JSON exports
+- Require **zero code changes** in the frontend application
+
+**Key Principle**: To add new analysis sections or modify existing ones, only update the N8N system prompt.
 
 ### 3. User Prompt Construction
 The user prompt is dynamically constructed from the payload data:
@@ -96,41 +102,43 @@ Additional Context: ${payload.prospect_data.notes || 'No additional context prov
 Please provide comprehensive analysis following the Wassching Method framework.`;
 ```
 
-## Response Validation
+## Response Validation - Dynamic Structure
 
-### 1. JSON Structure Validation
-The AI response should match this exact structure:
+### 1. Flexible JSON Structure
+The AI response structure is **completely flexible** and controlled by the system prompt. The frontend automatically adapts to any JSON structure returned. The only requirements are:
 
 ```json
 {
   "executive_summary": {
-    "fit_score": 85,
-    "overall_assessment": "High-potential prospect with strong strategic alignment",
-    "key_opportunities": ["opportunity 1", "opportunity 2", "opportunity 3"],
-    "engagement_priority": "high",
-    "estimated_timeline": "2-3 months to initial engagement"
+    "fit_score": 85,  // Required: Integer 0-100
+    "overall_assessment": "...",  // Required: String summary
+    // Any additional fields defined in system prompt
   },
-  "analysis": {
-    "1_strategic_fit_relevance": { /* ... */ },
-    "2_organization_decision_making": { /* ... */ },
-    "3_change_capacity_digital_maturity": { /* ... */ },
-    "4_current_challenges_market_position": { /* ... */ },
-    "5_technology_innovation_profile": { /* ... */ },
-    "6_business_impact_financial": { /* ... */ },
-    "7_contact_strategy_approach": { /* ... */ },
-    "8_personalized_outreach_recommendations": { /* ... */ }
-  },
-  "actionable_next_steps": { /* ... */ },
-  "risk_assessment": { /* ... */ }
+  // Any analysis sections defined in system prompt
+  "business_impact": { /* Dynamic content */ },
+  "challenges_position": { /* Dynamic content */ },  
+  "change_capacity": { /* Dynamic content */ },
+  "decision_makers": { /* Dynamic content */ },
+  "contact_strategy": { /* Dynamic content */ },
+  // ... any other sections from system prompt
 }
 ```
 
+**Critical Understanding**: The specific section names and structure depend entirely on what's defined in the system prompt. The frontend will:
+- Automatically detect and display all returned sections
+- Generate appropriate titles from field names
+- Include all content in exports
+- Require zero code changes for new sections
+
 ### 2. Quality Checks
 Add validation nodes to ensure:
-- `fit_score` is integer 0-100
-- All required sections are present
-- Decision makers include specific personas
-- Business impact includes quantified projections
+- `fit_score` is integer 0-100 (only required field constraint)
+- `executive_summary` object is present with required fields
+- JSON is valid and parseable
+- Content matches system prompt expectations
+- All sections defined in system prompt are included
+
+**Note**: Specific section validation depends on your system prompt structure.
 
 ## Error Handling
 
