@@ -35,15 +35,15 @@ Use the "fill the gaps" methodology for smart tool selection:
 ## COMPANY PROFILE CONTEXT
 **Industry:** {{ $json.body.company_profile.industry }}
 **Size:** {{ $json.body.company_profile.company_size }}
-**Target Market:** {{ $json.body.company_profile.target_market }}
-**Value Props:** {{ $json.body.company_profile.value_propositions }}
+**Target Market:** {{ $json.body.company_profile.ideal_client_size }}
+**Value Props:** {{ $json.body.company_profile.unique_differentiators }}
 **Main Offerings:** {{ $json.body.company_profile.main_offerings }}
 **Typical Results:** {{ $json.body.company_profile.typical_results }}
 
 ## USER PROFILE CONTEXT  
-**Role:** {{ $json.body.user_profile.job_title }}
-**Experience:** {{ $json.body.user_profile.years_experience }} years
-**Outreach Style:** {{ $json.body.user_profile.outreach_experience }}
+**Role:** {{ $json.body.user_profile.role_in_organization }}
+**Outreach Experience:** {{ $json.body.user_profile.outreach_experience }}
+**Communication Style:** {{ $json.body.user_profile.communication_style }}
 **Success Metrics:** {{ $json.body.user_profile.success_metrics }}
 
 ## RESEARCH NOTES
