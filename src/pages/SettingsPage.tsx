@@ -3,17 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useState, useEffect } from "react";
-import { getExportFormat, setExportFormat, ExportFormat, getAccordionExpanded, setAccordionExpanded, AccordionExpansion, getInsightsDisplayMode, setInsightsDisplayMode, InsightsDisplayMode } from "@/lib/exportUtils";
+import { getExportFormat, setExportFormat, ExportFormat, getResearchDisplayStyle, setResearchDisplayStyle, ResearchDisplayStyle } from "@/lib/exportUtils";
 
 export default function SettingsPage() {
   const [exportFormat, setCurrentExportFormat] = useState<ExportFormat>("pdf");
-  const [accordionExpansion, setCurrentAccordionExpansion] = useState<AccordionExpansion>("collapsed");
-  const [insightsDisplayMode, setCurrentInsightsDisplayMode] = useState<InsightsDisplayMode>("accordion");
+  const [researchDisplayStyle, setCurrentResearchDisplayStyle] = useState<ResearchDisplayStyle>("compact");
 
   useEffect(() => {
     setCurrentExportFormat(getExportFormat());
-    setCurrentAccordionExpansion(getAccordionExpanded());
-    setCurrentInsightsDisplayMode(getInsightsDisplayMode());
+    setCurrentResearchDisplayStyle(getResearchDisplayStyle());
   }, []);
 
   const handleExportFormatChange = (format: ExportFormat) => {
@@ -21,14 +19,9 @@ export default function SettingsPage() {
     setExportFormat(format);
   };
 
-  const handleAccordionExpansionChange = (expansion: AccordionExpansion) => {
-    setCurrentAccordionExpansion(expansion);
-    setAccordionExpanded(expansion);
-  };
-
-  const handleInsightsDisplayModeChange = (mode: InsightsDisplayMode) => {
-    setCurrentInsightsDisplayMode(mode);
-    setInsightsDisplayMode(mode);
+  const handleResearchDisplayStyleChange = (style: ResearchDisplayStyle) => {
+    setCurrentResearchDisplayStyle(style);
+    setResearchDisplayStyle(style);
   };
 
   return (
@@ -94,61 +87,35 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Research Analysis</CardTitle>
+          <CardTitle>Research Display Style</CardTitle>
           <CardDescription>
-            Configure how research analysis content is displayed.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Accordion Content</Label>
-            <RadioGroup 
-              value={accordionExpansion} 
-              onValueChange={handleAccordionExpansionChange}
-              className="flex flex-col space-y-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="collapsed" id="collapsed" />
-                <Label htmlFor="collapsed" className="text-sm">
-                  Collapsed - Click to expand sections
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="expanded" id="expanded" />
-                <Label htmlFor="expanded" className="text-sm">
-                  Expanded - Show all content by default
-                </Label>
-              </div>
-            </RadioGroup>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Insights Display Mode</CardTitle>
-          <CardDescription>
-            Choose how insights and analysis sections are displayed.
+            Choose how research analysis content is displayed.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <Label className="text-sm font-medium">Display Style</Label>
             <RadioGroup 
-              value={insightsDisplayMode} 
-              onValueChange={handleInsightsDisplayModeChange}
+              value={researchDisplayStyle} 
+              onValueChange={handleResearchDisplayStyleChange}
               className="flex flex-col space-y-2"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="accordion" id="accordion" />
-                <Label htmlFor="accordion" className="text-sm">
-                  Accordion - Collapsible sections (compact)
+                <RadioGroupItem value="compact" id="compact" />
+                <Label htmlFor="compact" className="text-sm">
+                  Compact - Collapsed accordion sections
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="cards" id="cards" />
-                <Label htmlFor="cards" className="text-sm">
-                  Cards - Individual cards for each insight (spacious)
+                <RadioGroupItem value="detailed" id="detailed" />
+                <Label htmlFor="detailed" className="text-sm">
+                  Detailed - Expanded accordion sections
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="spacious" id="spacious" />
+                <Label htmlFor="spacious" className="text-sm">
+                  Spacious - Individual cards for each section
                 </Label>
               </div>
             </RadioGroup>

@@ -1,38 +1,52 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-export type ExportFormat = 'pdf' | 'json';
-export type AccordionExpansion = 'collapsed' | 'expanded';
-export type InsightsDisplayMode = 'accordion' | 'cards';
+export type ExportFormat = "pdf" | "json";
+export type ResearchDisplayStyle = "compact" | "detailed" | "spacious";
 
-// Get export format from settings (localStorage for now)
+// User preferences
 export const getExportFormat = (): ExportFormat => {
-  return (localStorage.getItem('exportFormat') as ExportFormat) || 'pdf';
+  const saved = localStorage.getItem('exportFormat');
+  return (saved as ExportFormat) || 'pdf';
 };
 
-// Save export format to settings
-export const setExportFormat = (format: ExportFormat) => {
+export const setExportFormat = (format: ExportFormat): void => {
   localStorage.setItem('exportFormat', format);
 };
 
-// Get accordion expansion preference from settings
-export const getAccordionExpanded = (): AccordionExpansion => {
-  return (localStorage.getItem('accordionExpanded') as AccordionExpansion) || 'collapsed';
+export const getResearchDisplayStyle = (): ResearchDisplayStyle => {
+  const saved = localStorage.getItem('researchDisplayStyle');
+  if (saved) {
+    return saved as ResearchDisplayStyle;
+  }
+  
+  // Migration: check old settings and convert
+  const oldDisplayMode = localStorage.getItem('insightsDisplayMode');
+  const oldAccordionExpansion = localStorage.getItem('accordionExpanded');
+  
+  if (oldDisplayMode === 'cards') {
+    const newStyle = 'spacious';
+    localStorage.setItem('researchDisplayStyle', newStyle);
+    // Clean up old keys
+    localStorage.removeItem('insightsDisplayMode');
+    localStorage.removeItem('accordionExpanded');
+    return newStyle;
+  }
+  
+  if (oldDisplayMode === 'accordion') {
+    const newStyle = oldAccordionExpansion === 'expanded' ? 'detailed' : 'compact';
+    localStorage.setItem('researchDisplayStyle', newStyle);
+    // Clean up old keys
+    localStorage.removeItem('insightsDisplayMode');
+    localStorage.removeItem('accordionExpanded');
+    return newStyle;
+  }
+  
+  return 'compact'; // default
 };
 
-// Save accordion expansion preference to settings
-export const setAccordionExpanded = (expansion: AccordionExpansion) => {
-  localStorage.setItem('accordionExpanded', expansion);
-};
-
-// Get insights display mode from settings
-export const getInsightsDisplayMode = (): InsightsDisplayMode => {
-  return (localStorage.getItem('insightsDisplayMode') as InsightsDisplayMode) || 'accordion';
-};
-
-// Save insights display mode to settings
-export const setInsightsDisplayMode = (mode: InsightsDisplayMode) => {
-  localStorage.setItem('insightsDisplayMode', mode);
+export const setResearchDisplayStyle = (style: ResearchDisplayStyle): void => {
+  localStorage.setItem('researchDisplayStyle', style);
 };
 
 // PDF Export utility for research results

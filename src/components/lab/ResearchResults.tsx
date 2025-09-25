@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, Download, Users, Target, MessageSquare, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { exportResearchToPDF, exportToJSON, getExportFormat, getAccordionExpanded, getInsightsDisplayMode } from "@/lib/exportUtils";
+import { exportResearchToPDF, exportToJSON, getExportFormat, getResearchDisplayStyle } from "@/lib/exportUtils";
 
 interface ResearchItem {
   id: string;
@@ -43,8 +43,7 @@ interface ResearchResultsProps {
 export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) => {
   const { toast } = useToast();
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const accordionExpansion = getAccordionExpanded();
-  const displayMode = getInsightsDisplayMode();
+  const displayStyle = getResearchDisplayStyle();
 
   if (!research.research_results || research.status !== 'completed') {
     return (
@@ -145,7 +144,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   );
 
   const renderAccordion = (data: any, prefix: string) => {
-    const isExpanded = accordionExpansion === 'expanded';
+    const isExpanded = displayStyle === 'detailed';
     const defaultValues = isExpanded ? Object.keys(data).map((_, index) => `${prefix}-${index}`) : undefined;
 
     if (isExpanded) {
@@ -237,7 +236,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   };
 
   const renderContent = (data: any, prefix: string) => {
-    return displayMode === 'cards' ? renderAsCards(data, prefix) : renderAccordion(data, prefix);
+    return displayStyle === 'spacious' ? renderAsCards(data, prefix) : renderAccordion(data, prefix);
   };
 
   return (
