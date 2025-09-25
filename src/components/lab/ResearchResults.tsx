@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Copy, Download, Users, Target, MessageSquare, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -274,120 +274,103 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
         </CardContent>
       </Card>
 
-      {/* Detailed Analysis Tabs */}
-      <Tabs defaultValue="strategic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="strategic">Strategic Fit</TabsTrigger>
-          <TabsTrigger value="organization">Organization</TabsTrigger>
-          <TabsTrigger value="technology">Technology</TabsTrigger>
-          <TabsTrigger value="contact">Contact Strategy</TabsTrigger>
-        </TabsList>
+      {/* Detailed Analysis Sections */}
+      {results.strategic_fit && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              Strategic Fit & Relevance
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm leading-relaxed">
+              {renderMarkdownContent(results.strategic_fit)}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(results.strategic_fit, 'Strategic Fit')}
+                className={`mt-2 ${copiedSection === 'Strategic Fit' ? "text-green-600" : ""}`}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="strategic" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Strategic Fit & Relevance
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {results.strategic_fit && (
-                <div className="text-sm leading-relaxed">
-                  {renderMarkdownContent(results.strategic_fit)}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(results.strategic_fit, 'Strategic Fit')}
-                    className={`mt-2 ${copiedSection === 'Strategic Fit' ? "text-green-600" : ""}`}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+      {results.decision_makers && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Organization & Decision Making
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm leading-relaxed">
+              {renderMarkdownContent(results.decision_makers)}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(results.decision_makers, 'Decision Makers')}
+                className={`mt-2 ${copiedSection === 'Decision Makers' ? "text-green-600" : ""}`}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="organization" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Organization & Decision Making
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {results.decision_makers && (
-                <div className="text-sm leading-relaxed">
-                  {renderMarkdownContent(results.decision_makers)}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(results.decision_makers, 'Decision Makers')}
-                    className={`mt-2 ${copiedSection === 'Decision Makers' ? "text-green-600" : ""}`}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+      {results.technology_profile && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Technology & Innovation Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm leading-relaxed">
+              {renderMarkdownContent(results.technology_profile)}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(results.technology_profile, 'Technology Profile')}
+                className={`mt-2 ${copiedSection === 'Technology Profile' ? "text-green-600" : ""}`}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="technology" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Technology & Innovation Profile</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {results.technology_profile && (
-                <div className="text-sm leading-relaxed">
-                  {renderMarkdownContent(results.technology_profile)}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(results.technology_profile, 'Technology Profile')}
-                    className={`mt-2 ${copiedSection === 'Technology Profile' ? "text-green-600" : ""}`}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="contact" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                Contact Strategy & Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {results.contact_strategy && (
-                <div className="text-sm leading-relaxed">
-                  {renderMarkdownContent(results.contact_strategy)}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(results.contact_strategy, 'Contact Strategy')}
-                    className={`mt-2 ${copiedSection === 'Contact Strategy' ? "text-green-600" : ""}`}
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {results.contact_strategy && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Contact Strategy & Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm leading-relaxed">
+              {renderMarkdownContent(results.contact_strategy)}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => copyToClipboard(results.contact_strategy, 'Contact Strategy')}
+                className={`mt-2 ${copiedSection === 'Contact Strategy' ? "text-green-600" : ""}`}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
