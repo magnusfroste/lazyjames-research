@@ -81,6 +81,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedResearch, setSelectedResearch] = useState<ResearchItem | null>(null);
@@ -99,7 +100,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
     const hasPending = research.some(r => r.status === 'pending');
     if (hasPending) {
       interval = setInterval(() => {
-        loadData();
+        loadData(true); // Pass true to indicate this is a polling update
       }, 3000); // Poll every 3 seconds when there's pending research
     }
     
@@ -111,9 +112,13 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
   // Dummy user ID for POC demo
   const DEMO_USER_ID = '00000000-0000-0000-0000-000000000000';
 
-  const loadData = async () => {
+  const loadData = async (isPollingUpdate = false) => {
     try {
-      setLoading(true);
+      if (isPollingUpdate) {
+        setIsPolling(true);
+      } else {
+        setLoading(true);
+      }
       
       // Load user's research
       const { data: researchData, error: researchError } = await supabase
@@ -174,6 +179,7 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       });
     } finally {
       setLoading(false);
+      setIsPolling(false);
     }
   };
 
