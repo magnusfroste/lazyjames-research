@@ -57,7 +57,9 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   }
 
   const results = research.research_results;
-  const fitScore = research.fit_score || 0;
+  // Try to get fit_score from research record, fallback to executive_summary if needed
+  const fitScore = research.fit_score || 
+    (results?.executive_summary?.fit_score) || 0;
 
   const copyToClipboard = async (text: string, sectionName: string) => {
     try {
@@ -118,9 +120,54 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     return "bg-red-500";
   };
 
-  // Simplified - now expects direct markdown strings
+  // Handle both string and object formats for content
   const formatSectionContent = (content: any) => {
     return typeof content === 'string' ? content : String(content);
+  };
+
+  // Render executive summary - handles both string and object formats
+  const renderExecutiveSummary = (execSummary: any) => {
+    if (!execSummary) return null;
+
+    // If it's a string, render as markdown
+    if (typeof execSummary === 'string') {
+      return renderMarkdownContent(execSummary);
+    }
+
+    // If it's an object, render each markdown field with headings
+    if (typeof execSummary === 'object') {
+      const markdownFields = ['overall_assessment', 'key_opportunities', 'risk_factors', 'recommended_approach'];
+      
+      return (
+        <div className="space-y-4">
+          {markdownFields.map(field => {
+            const content = execSummary[field];
+            if (!content || typeof content !== 'string') return null;
+            
+            return (
+              <div key={field}>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-sm">
+                    {field.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </h4>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(content, field)}
+                    className={copiedSection === field ? "text-green-600" : ""}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+                {renderMarkdownContent(content)}
+              </div>
+            );
+          }).filter(Boolean)}
+        </div>
+      );
+    }
+
+    return null;
   };
 
   const renderMarkdownContent = (content: string) => (
@@ -294,7 +341,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
             <div>
               <h3 className="font-semibold mb-2">Executive Summary</h3>
               <div className="text-sm leading-relaxed">
-                {renderMarkdownContent(formatSectionContent(results.executive_summary))}
+                {renderExecutiveSummary(results.executive_summary)}
               </div>
             </div>
           )}
