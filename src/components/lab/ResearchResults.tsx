@@ -294,7 +294,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
             <div>
               <h3 className="font-semibold mb-2">Executive Summary</h3>
               <div className="text-sm leading-relaxed">
-                {renderMarkdownContent(results.executive_summary)}
+                {renderMarkdownContent(formatSectionContent(results.executive_summary))}
               </div>
             </div>
           )}
