@@ -45,7 +45,6 @@ This user prompt leverages **all 42 company and user profile fields** to provide
 **Geographic Markets:** {{ $json.body.company_profile.geographic_markets }}
 
 **Target Industries:** {{ $json.body.company_profile.target_industries }}
-**Target Market:** {{ $json.body.company_profile.target_market }}
 **Ideal Client Size:** {{ $json.body.company_profile.ideal_client_size }}
 
 ### Offerings & Differentiation
