@@ -1,63 +1,104 @@
-# Profile System Documentation
+# Profile System
 
-This directory contains comprehensive documentation for the Research Engine's profile system, including all questions, form structures, and design rationale.
+User and company profile questions and structure for context-aware prospect research.
 
 ## Overview
 
-The profile system captures essential information about users and companies to provide context-aware research. It consists of two main components:
+Two profile types power personalized research:
 
-- **Company Profile**: 25+ questions about the user's company, offerings, and market position
-- **User Profile**: 20+ questions about the individual user's role, preferences, and research needs
+- **Company Profile** (`lab_company_profiles`) - Business details, offerings, differentiators
+- **User Profile** (`lab_user_profiles`) - Role, preferences, communication style, credits
 
-## Documentation Structure
+## Profile Questions
 
-### Profile Questions
-- **[Company Profile Questions](./company-profile-questions.md)** - Complete list of company profile questions with field types and validation
-- **[User Profile Questions](./user-profile-questions.md)** - Complete list of user profile questions with field types and options
-- **[Original Company Questions](./original-company-questions.md)** - Source document with all original company profile questions
-
-### Form Implementation
-- **[Form Components Guide](./form-components.md)** - How questions map to React form components
-- **[Validation Rules](./validation-rules.md)** - Validation logic and requirements for each field
+- **[Company Profile Questions](./company-profile-questions.md)** - Complete field list with types
+- **[User Profile Questions](./user-profile-questions.md)** - Complete field list with options
+- **[Original Company Questions](./original-company-questions.md)** - Source document
 
 ## Design Principles
 
-### Question Selection Rationale
-1. **Context-Driven**: Questions are designed to provide maximum context for AI-powered research
-2. **Progressive Disclosure**: Forms use wizards to break complex profiles into manageable steps
-3. **Smart Defaults**: Many fields are optional with intelligent defaults
-4. **Validation Balance**: Required fields are minimal but sufficient for basic functionality
+### Context-Driven
+Questions provide maximum context for AI-powered research analysis.
 
-### Profile Completeness
-- Profiles track completion percentage to encourage full setup
-- Core functionality works with minimal required fields
-- Advanced features unlock with more complete profiles
+### Progressive Disclosure
+Wizard forms break complex profiles into manageable steps.
 
-### Data Structure
-- All profile data is stored in Supabase with proper typing
-- Fields support various data types: text, arrays, booleans, enums
-- Flexible schema allows for future question additions
+### Required vs Optional
+Minimal required fields for basic functionality, optional fields enhance analysis.
 
-## Usage in Research Engine
+## Data Structure
 
-The profile data is used to:
-1. **Personalize Research**: Tailor research approaches based on company/user context
-2. **Generate Context**: Provide rich context to N8N workflows
-3. **Improve Relevance**: Filter and focus research based on industry/role
-4. **Enable Automation**: Pre-fill forms and suggestions based on profile data
+### Company Profile (`lab_company_profiles`)
+```typescript
+{
+  user_id: uuid,
+  company_name: text,
+  industry: text,
+  main_offerings: text[],
+  target_industries: text[],
+  unique_differentiators: text[],
+  communication_style: text,
+  is_complete: boolean,
+  // ... 20+ more fields
+}
+```
 
-## Future Enhancements
+### User Profile (`lab_user_profiles`)
+```typescript
+{
+  user_id: uuid,
+  full_name: text,
+  role_in_organization: text,
+  communication_style: text,
+  credits: integer,  // Default: 5
+  is_complete: boolean,
+  // ... 15+ more fields
+}
+```
 
-When adding new profile questions:
-1. Review existing questions to avoid duplication
-2. Consider the research context value of each question
-3. Update TypeScript interfaces and validation schemas
-4. Test with various user personas
-5. Document the rationale for new questions
+## Credits Field
 
-## Quick Reference
+### User Profile Credits
+- **Field**: `lab_user_profiles.credits`
+- **Type**: Integer
+- **Default**: 5 (set on profile creation)
+- **Purpose**: Track available research credits
+- **Deduction**: 1 credit per research
 
-- **Total Company Questions**: 25+ fields covering company basics, offerings, culture, and goals
-- **Total User Questions**: 20+ fields covering role, preferences, and research needs
-- **Required Fields**: Minimal set for basic functionality
-- **Optional Fields**: Enhanced context for advanced features
+### Credit Initialization
+When a user completes profile setup:
+1. Record created in `lab_user_profiles`
+2. `credits` field set to 5
+3. No transaction logged (initial allocation)
+
+## Profile Completion
+
+### Required for Research
+Both profiles must have `is_complete = true` before initiating research.
+
+### Completion Tracking
+```typescript
+// Check if ready for research
+const canResearch = 
+  companyProfile?.is_complete && 
+  userProfile?.is_complete &&
+  userProfile?.credits >= 1;
+```
+
+## Usage in Research
+
+Profile data enhances webhook payload:
+1. **Processing Hints**: Focus areas, communication style
+2. **Metadata**: Experience level, company maturity
+3. **Context**: Industry, role, preferences
+
+See [Payload Documentation](../payload/README.md) for full structure.
+
+## Adding New Questions
+
+When extending profiles:
+1. Check for duplicate/redundant questions
+2. Assess research context value
+3. Update database schema
+4. Update TypeScript interfaces
+5. Document rationale

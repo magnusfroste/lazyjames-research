@@ -1,12 +1,12 @@
-# Enhanced Payload Structure Documentation
+# Enhanced Payload Structure
 
-This document describes the enhanced webhook payload structure used by the Research Engine to provide intelligent context and processing hints to the N8N workflow.
+Webhook payload structure for intelligent, context-aware prospect research via N8N.
 
 ## Overview
 
-The enhanced payload provides **stable input structure** to N8N workflows while enabling **flexible output generation**. The payload structure remains consistent, but the AI response structure is completely dynamic and controlled by the N8N system prompt. This enables personalized, adaptive research where new analysis sections can be added without any frontend code changes.
+The enhanced payload provides **stable input** to N8N while enabling **dynamic AI-generated output**. The structure stays consistent, but N8N's system prompt controls what analysis sections are generated.
 
-## Complete Payload Structure
+## Payload Structure
 
 ```typescript
 interface EnhancedWebhookPayload {

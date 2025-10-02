@@ -22,49 +22,60 @@ graph TD
 
 ## Core Components
 
-### 1. Frontend Application (React/TypeScript)
-- **User Interface**: Research initiation and results display
-- **Payload Enhancement**: Intelligent processing hints and metadata generation
-- **Profile Management**: User and company profile storage (Supabase)
-- **Results Parsing**: JSON response parsing and display
+### 1. Frontend (React/TypeScript)
+- Research initiation and results display
+- Profile management (`lab_user_profiles`, `lab_company_profiles`)
+- Credit system integration
+- Dynamic JSONB response rendering
 
 ### 2. Enhanced Payload System
-- **Intelligent Hints**: Dynamic processing guidance based on user/company profiles
-- **Metadata Enrichment**: Context-aware metadata for personalized analysis
-- **Payload Structure**: Comprehensive data package for AI analysis
+- Intelligent processing hints from profiles
+- Context-aware metadata enrichment
+- Comprehensive data package for AI
 
-### 3. N8N Integration
-- **Webhook Receiver**: Accepts enhanced payload from frontend
-- **AI Processing Node**: Processes payload using system prompt
-- **Response Formatting**: Ensures proper JSON structure
+### 3. N8N Workflow
+- Webhook receiver for enhanced payload
+- AI processing with system prompt
+- Structured JSON response
 
 ### 4. AI Analysis Engine
-- **System Prompt**: Master controller for all content structure and sections
-- **Dynamic Content Generation**: AI creates any sections based on system prompt
-- **JSONB Storage**: Flexible storage for any AI-generated analysis structure
-- **Auto-Adaptation**: UI and exports automatically handle new sections
+- **System Prompt Controlled**: All content structure defined in N8N
+- **JSONB Storage**: Dynamic schema in `lab_prospect_research.research_results`
+- **Auto-Adaptation**: UI renders any AI-generated sections automatically
+
+### 5. Credit System
+- **Default Allocation**: 5 credits per user (`lab_user_profiles.credits`)
+- **Research Cost**: 1 credit per prospect research
+- **Transaction Logging**: All changes logged in `lab_credit_transactions`
+- **UI Integration**: Credit balance shown in dashboard and profile
 
 ## Data Flow
 
 ### 1. Research Initiation
 ```
-User Profile + Company Profile + Prospect Data
+Authentication Check (Supabase Auth)
 ↓
-Processing Hints Generation (focus areas, communication style, etc.)
+Credit Balance Check (lab_user_profiles.credits >= 1)
 ↓
-Metadata Enrichment (experience level, company maturity, etc.)
+Profile Validation (is_complete = true for both profiles)
 ↓
-Enhanced Webhook Payload
+Deduct 1 Credit + Log Transaction (lab_credit_transactions)
+↓
+Generate Enhanced Payload (profiles + prospect data + hints)
+↓
+Send to N8N Webhook
 ```
 
 ### 2. N8N Processing
 ```
-Enhanced Payload → N8N Webhook → AI Node (System Prompt) → JSON Response
+Enhanced Payload → Webhook → AI Analysis → Structured JSON Response
 ```
 
-### 3. Response Handling
+### 3. Response Storage & Display
 ```
-JSON Response → Dynamic Parser → JSONB Storage → Dynamic UI Rendering → Auto-Export
+JSON Response → Parse → Store (lab_prospect_research.research_results JSONB)
+↓
+Dynamic UI Rendering → Export Options
 ```
 
 ## Key Features
@@ -90,40 +101,38 @@ JSON Response → Dynamic Parser → JSONB Storage → Dynamic UI Rendering → 
 ## Technology Stack
 
 ### Frontend
-- **React 18** with TypeScript
-- **Tailwind CSS** for styling with design system
-- **Shadcn/ui** components
-- **React Router** for navigation
-- **React Hook Form** for form handling
+- React 18 + TypeScript
+- Tailwind CSS with design system
+- Shadcn/ui components
+- React Router
+- React Hook Form
 
-### Backend Integration
-- **Supabase** for data storage (profiles, research records)
-- **N8N** for AI workflow orchestration
-- **Webhook Integration** for payload transmission
+### Backend
+- **Supabase**: Database, Auth, RLS policies
+- **N8N**: AI workflow orchestration
+- **Webhooks**: Payload transmission
 
 ### AI Processing
-- **Claude/GPT-4** (configured in N8N)
-- **Dynamic Analysis Framework** (system prompt controlled)
-- **JSONB-structured** responses (flexible schema)
-- **Content Master Control** via N8N system prompt
+- Claude/GPT-4 (N8N configured)
+- System prompt controlled structure
+- JSONB flexible schema
 
-## Security Considerations
+## Security
 
-- **Environment Variables**: Webhook URLs stored securely
-- **Input Validation**: Payload validation before transmission
-- **Error Handling**: Comprehensive error handling and user feedback
-- **Rate Limiting**: Handled at N8N workflow level
+- **RLS Policies**: All `lab_*` tables enforce user-level access control
+- **Authentication**: Supabase Auth with email verification
+- **Webhook Secrets**: Stored in Supabase secrets, not environment variables
+- **Input Validation**: Zod schemas validate all user inputs
 
-## Performance Optimization
+## Database Tables
 
-- **Payload Compression**: Efficient data structure
-- **Async Processing**: Non-blocking webhook requests
-- **Response Caching**: Results stored in Supabase
-- **Loading States**: User feedback during processing
+### User & Profiles
+- `lab_user_profiles` - User details, credits, preferences (RLS: user_id)
+- `lab_company_profiles` - Company info, offerings, differentiators (RLS: user_id)
 
-## Scalability
+### Research
+- `lab_prospect_research` - Research records with JSONB results (RLS: user_id)
+- `lab_credit_transactions` - Credit usage history (RLS: user_id)
 
-- **Stateless Design**: No server-side state management
-- **N8N Scaling**: Horizontal scaling through N8N
-- **Database Optimization**: Efficient Supabase queries
-- **Component Architecture**: Modular, reusable components
+### Templates
+- `lab_research_templates` - Custom research templates (RLS: user_id)

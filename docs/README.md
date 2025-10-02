@@ -1,31 +1,28 @@
 # Research Engine Documentation
 
-This directory contains comprehensive documentation for the Research Engine system, including N8N integration, payload structure, and development guidelines.
+Complete documentation for the Research Engine system - prospect analysis powered by AI and N8N workflows.
 
-## Documentation Structure
+## Quick Start
 
-### Core Documentation
-- **[Architecture Overview](./architecture/README.md)** - Complete system architecture and workflow
-- **[N8N Integration](./n8n/README.md)** - N8N webhook integration and system prompt management
+- **[Getting Started Guide](./setup/README.md)** - Set up your account and run your first research
+- **[Credit System](./credits/README.md)** - How credits work (5 free, 1 per research)
+
+## Core Documentation
+
+- **[Architecture Overview](./architecture/README.md)** - System design and data flow
+- **[Development Guide](./development/README.md)** - Coding guidelines and best practices
+- **[Profile System](./profiles/README.md)** - User and company profile structure
 - **[Payload Structure](./payload/README.md)** - Enhanced webhook payload documentation
-- **[Response Parsing](./response/README.md)** - How JSON responses are parsed and displayed
-- **[Development Guide](./development/README.md)** - Development guidelines and best practices
-- **[Profile System](./profiles/README.md)** - User and company profile questions and form structure
+- **[Response Parsing](./response/README.md)** - Dynamic JSON response handling
+- **[Export System](./exports/README.md)** - PDF export functionality
 
-### Quick Reference
-- **[System Prompt](./n8n/system-prompt.md)** - Current N8N system prompt (paste into N8N)
-- **[Payload Examples](./payload/examples.md)** - Example payloads for testing
-- **[API Reference](./api/README.md)** - Webhook API documentation
+## N8N Integration
 
-## Getting Started
+- **[N8N Integration Guide](./n8n/README.md)** - Webhook configuration and workflow
+- **[System Prompt](./n8n/system-prompt.md)** - Current AI system prompt (copy to N8N)
 
-1. Read the [Architecture Overview](./architecture/README.md) to understand the system
-2. Review the [N8N Integration](./n8n/README.md) to understand the webhook flow
-3. Check the [Development Guide](./development/README.md) for coding guidelines
+## For Developers
 
-## Quick Links
-
-- [Current N8N System Prompt](./n8n/system-prompt.md) - Copy/paste into N8N
-- [Enhanced Payload Structure](./payload/structure.md) - Complete payload documentation
-- [Testing Guide](./development/testing.md) - How to test the research engine
-- [Troubleshooting](./development/troubleshooting.md) - Common issues and solutions
+1. Review [Architecture](./architecture/README.md) for system overview
+2. Check [Development Guide](./development/README.md) for coding standards
+3. Read [Getting Started](./setup/README.md) for initial setup

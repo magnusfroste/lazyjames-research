@@ -1,426 +1,369 @@
 # Development Guide
 
-This guide provides comprehensive development guidelines, best practices, and procedures for working with the Research Engine codebase.
+Development guidelines and best practices for the Research Engine codebase.
 
-## Development Principles
+## Principles
 
-### 1. Code Organization
-- **Component Structure**: Small, focused, reusable components
-- **File Naming**: Descriptive, consistent naming conventions
-- **Import/Export**: Clear module boundaries and explicit exports
-- **Type Safety**: Comprehensive TypeScript usage throughout
+### Code Organization
+- **Single Responsibility**: Components do one thing well
+- **Composition**: Build complex UIs from simple components
+- **Separation of Concerns**: Business logic separate from UI
 
-### 2. Architecture Guidelines
-- **Single Responsibility**: Each component/function has one clear purpose  
-- **Composition over Inheritance**: Favor component composition
-- **Immutable Data**: Use immutable patterns for state management
-- **Error Boundaries**: Comprehensive error handling and user feedback
-
-### 3. Dynamic Architecture Principles
-- **Future-Proof Design**: Components adapt automatically to new data structures
-- **N8N System Prompt Master**: All content structure controlled by N8N system prompt
-- **Zero Code Changes**: New analysis sections integrate without frontend changes
-- **JSONB Flexibility**: Embrace flexible data structures over rigid schemas
+### Architecture
+- **Dynamic System**: AI controls content structure, UI adapts automatically
+- **Type Safety**: TypeScript strict mode, Zod validation
+- **Database First**: Supabase as source of truth
 
 ## Project Structure
 
 ```
 src/
-├── components/           # React components
-│   ├── lab/             # Lab-specific components  
-│   ├── layout/          # Layout components
-│   ├── profiles/        # Profile management
-│   └── ui/              # Shared UI components (shadcn)
-├── hooks/               # Custom React hooks
-├── lib/                 # Utility libraries
-├── pages/               # Route components  
-├── integrations/        # External service integrations
-└── main.tsx            # Application entry point
+├── components/
+│   ├── lab/              # Research Engine components
+│   ├── profiles/         # Profile management
+│   ├── ui/               # Shadcn components
+│   └── layout/           # App shell (header, sidebar)
+├── hooks/                # Custom React hooks
+├── lib/                  # Utilities and helpers
+├── pages/                # Route components
+├── contexts/             # React contexts (AuthContext)
+└── integrations/
+    └── supabase/         # Supabase client & types
 
 docs/
-├── architecture/        # System architecture documentation
-├── n8n/                # N8N integration guides  
-├── payload/            # Payload structure documentation
-├── development/        # Development guidelines
-├── response/            # Dynamic response parsing documentation
-├── exports/             # Export system documentation  
-└── README.md           # Documentation index
+├── architecture/         # System design
+├── n8n/                  # Workflows and prompts
+├── profiles/             # Profile questions
+├── credits/              # Credit system
+└── setup/                # Getting started
 ```
+
+## Key Database Tables
+
+All tables use `lab_` prefix and enforce RLS policies:
+
+**Profiles:**
+- `lab_user_profiles` - User info, credits, preferences
+- `lab_company_profiles` - Company details, offerings
+
+**Research:**
+- `lab_prospect_research` - Research records (JSONB results)
+- `lab_credit_transactions` - Credit history
+
+**Templates:**
+- `lab_research_templates` - Custom research templates
 
 ## Development Workflow
 
-### 1. Feature Development Process
-1. **Planning**: Document requirements and approach
-2. **Design**: Create component interfaces and data structures
-3. **Implementation**: Build components with tests
-4. **Integration**: Connect with existing systems
-5. **Documentation**: Update relevant docs
-6. **Review**: Code review and testing
+### 1. Planning
+- Review existing architecture
+- Identify affected components
+- Check database schema requirements
+- Plan minimal changes
 
-### 2. Component Development Guidelines
+### 2. Implementation
+- Write database migrations first (if needed)
+- Update TypeScript types
+- Implement UI components
+- Add error handling
 
-#### React Component Structure
+### 3. Testing
+- Test authentication flow
+- Verify RLS policies work
+- Check credit deduction
+- Test webhook integration
+
+## Component Patterns
+
+### React Component
 ```typescript
-// Component template
-import React from 'react';
-import { ComponentProps } from './types';
-import { useCustomHook } from '@/hooks/useCustomHook';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
-interface Props extends ComponentProps {
-  // Component-specific props
+interface MyComponentProps {
+  userId: string;
+  onComplete: () => void;
 }
 
-export const ComponentName: React.FC<Props> = ({ 
-  prop1, 
-  prop2,
-  ...rest 
-}) => {
-  // Hooks
-  const { data, loading, error } = useCustomHook();
-  
-  // Event handlers
-  const handleEvent = (event: Event) => {
-    // Handle event
-  };
-  
-  // Render guards
-  if (loading) return <LoadingSpinner />;
-  if (error) return <ErrorDisplay error={error} />;
-  
-  return (
-    <div className="component-container" {...rest}>
-      {/* Component content */}
-    </div>
-  );
-};
-```
+export const MyComponent = ({ userId, onComplete }: MyComponentProps) => {
+  const [loading, setLoading] = useState(false);
 
-#### Custom Hook Pattern
-```typescript
-// Custom hook template  
-import { useState, useEffect } from 'react';
-
-interface UseCustomHookResult {
-  data: DataType | null;
-  loading: boolean;
-  error: Error | null;
-  refetch: () => void;
-}
-
-export const useCustomHook = (
-  param1: string,
-  options?: HookOptions
-): UseCustomHookResult => {
-  const [data, setData] = useState<DataType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  
-  const fetchData = async () => {
+  const handleSubmit = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const result = await apiCall(param1, options);
-      setData(result);
-      setError(null);
-    } catch (err) {
-      setError(err as Error);
+      // Business logic
+      onComplete();
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
-  
+
+  return (
+    <Button onClick={handleSubmit} disabled={loading}>
+      {loading ? 'Processing...' : 'Submit'}
+    </Button>
+  );
+};
+```
+
+### Custom Hook
+```typescript
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+export const useUserCredits = (userId: string | undefined) => {
+  const [credits, setCredits] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    fetchData();
-  }, [param1, options]);
-  
-  return { data, loading, error, refetch: fetchData };
+    if (!userId) return;
+
+    const fetchCredits = async () => {
+      const { data } = await supabase
+        .from('lab_user_profiles')
+        .select('credits')
+        .eq('user_id', userId)
+        .single();
+
+      if (data) setCredits(data.credits);
+      setLoading(false);
+    };
+
+    fetchCredits();
+  }, [userId]);
+
+  return { credits, loading };
 };
 ```
 
 ## State Management
 
-### 1. Local State (useState/useReducer)
-- Use for component-specific state
-- Keep state as close to usage as possible
-- Avoid prop drilling beyond 2 levels
+### Local State
+Use `useState` for component-only state (loading, form values).
 
-### 2. Server State (React Query/SWR)
-- Use for API data fetching and caching
-- Implement proper error handling and loading states
-- Configure appropriate cache policies
-
-### 3. Global State (Context/Zustand)
-- Use sparingly for truly global state
-- Prefer composition over complex state trees
-- Document state shape and update patterns
-
-## API Integration Guidelines
-
-### 1. Supabase Integration
+### Server State
+Use Supabase queries for database data:
 ```typescript
-// Supabase client usage
-import { supabase } from '@/integrations/supabase/client';
-
-export const apiService = {
-  async fetchUserProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-      
-    if (error) throw error;
-    return data;
-  },
-  
-  async saveResearchRecord(record: ResearchRecord) {
-    const { data, error } = await supabase
-      .from('research_records')
-      .insert(record)
-      .select()
-      .single();
-      
-    if (error) throw error;
-    return data;
-  }
-};
+const { data, error } = await supabase
+  .from('lab_user_profiles')
+  .select('*')
+  .eq('user_id', userId)
+  .single();
 ```
 
-### 2. Webhook Integration
+### Global State
+Use React Context for auth state (`AuthContext`).
+
+## API Integration
+
+### Supabase Queries
 ```typescript
-// Webhook payload sending
-export const sendWebhookPayload = async (
-  webhookUrl: string,
-  payload: EnhancedWebhookPayload
-): Promise<any> => {
-  try {
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Webhook failed: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Webhook error:', error);
-    throw error;
-  }
-};
+// Read
+const { data } = await supabase
+  .from('lab_prospect_research')
+  .select('*')
+  .eq('user_id', userId)
+  .order('created_at', { ascending: false });
+
+// Insert
+const { data } = await supabase
+  .from('lab_prospect_research')
+  .insert({
+    user_id: userId,
+    prospect_company_name: 'Acme Corp',
+    // ... other fields
+  })
+  .select()
+  .single();
+
+// Update
+const { data } = await supabase
+  .from('lab_prospect_research')
+  .update({ is_starred: true })
+  .eq('id', researchId)
+  .eq('user_id', userId);
 ```
 
-## Error Handling Standards
-
-### 1. Component Error Boundaries
+### Webhook Payloads
 ```typescript
-class ComponentErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Component error:', error, errorInfo);
-    // Log to monitoring service
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
-    }
-
-    return this.props.children;
-  }
-}
-```
-
-### 2. API Error Handling
-```typescript
-// Standardized error handling
-export const handleApiError = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === 'string') {
-    return error;
-  }
-  return 'An unexpected error occurred';
-};
-
-// Usage in components
-const { data, error } = useQuery('userData', fetchUserData, {
-  onError: (error) => {
-    toast.error(handleApiError(error));
-  }
+const response = await fetch(webhookUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    user_profile: userProfile,
+    company_profile: companyProfile,
+    prospect_data: prospectData,
+    processing_hints: hints,
+  }),
 });
 ```
 
-## Design System Integration
+## Error Handling
 
-### 1. Component Styling
+### Component Level
 ```typescript
-// Use design system tokens
-import { cn } from '@/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+try {
+  await someAsyncOperation();
+} catch (error) {
+  console.error('Operation failed:', error);
+  toast({
+    title: "Error",
+    description: error.message,
+    variant: "destructive",
+  });
+}
+```
+
+### API Errors
+```typescript
+const { data, error } = await supabase
+  .from('lab_user_profiles')
+  .select('*');
+
+if (error) {
+  console.error('Database error:', error);
+  return null;
+}
+
+return data;
+```
+
+## Design System
+
+### Use Semantic Tokens
+```tsx
+// ❌ WRONG - Direct colors
+<div className="bg-white text-black">
+
+// ✅ CORRECT - Semantic tokens
+<div className="bg-background text-foreground">
+```
+
+### Component Variants
+Use `class-variance-authority` for variants:
+```typescript
+import { cva } from "class-variance-authority";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+  "inline-flex items-center justify-center rounded-md",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input hover:bg-accent hover:text-accent-foreground",
+        default: "bg-primary text-primary-foreground",
+        outline: "border border-input bg-background",
       },
       size: {
-        default: "h-10 py-2 px-4",
-        sm: "h-9 px-3 rounded-md",
-        lg: "h-11 px-8 rounded-md",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3",
       },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
     },
   }
 );
 ```
 
-### 2. Color Usage
-```typescript
-// Always use semantic tokens from design system
-// ❌ Wrong
-<div className="bg-blue-500 text-white">
+## Credit System Implementation
 
-// ✅ Correct  
-<div className="bg-primary text-primary-foreground">
+### Check Credits Before Research
+```typescript
+// 1. Fetch current credits
+const { data: profile } = await supabase
+  .from('lab_user_profiles')
+  .select('credits')
+  .eq('user_id', userId)
+  .single();
+
+if (!profile || profile.credits < 1) {
+  toast({ title: "Insufficient credits" });
+  return;
+}
+
+// 2. Deduct credit and log transaction
+const { error } = await supabase.rpc('deduct_credit', {
+  p_user_id: userId,
+  p_description: `Research for ${companyName}`,
+});
+```
+
+## Authentication Requirements
+
+### Protected Routes
+```typescript
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+
+<Route element={<ProtectedRoute />}>
+  <Route path="/research" element={<ResearchPage />} />
+</Route>
+```
+
+### Auth Context Usage
+```typescript
+import { useAuth } from '@/contexts/AuthContext';
+
+const { user, loading } = useAuth();
+
+if (loading) return <div>Loading...</div>;
+if (!user) return <Navigate to="/auth" />;
 ```
 
 ## Testing Guidelines
 
-### 1. Component Testing
-```typescript
-// Component test template
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ComponentName } from './ComponentName';
+### Manual Testing Checklist
+- [ ] Authentication flow works
+- [ ] Profiles can be created/updated
+- [ ] Credit deduction works correctly
+- [ ] Research initiates and completes
+- [ ] RLS policies prevent unauthorized access
+- [ ] Webhook payload is correct
+- [ ] Results display properly
 
-describe('ComponentName', () => {
-  it('renders with required props', () => {
-    render(<ComponentName prop1="value" />);
-    expect(screen.getByText('Expected Text')).toBeInTheDocument();
-  });
-  
-  it('handles user interactions', () => {
-    const mockHandler = jest.fn();
-    render(<ComponentName onEvent={mockHandler} />);
-    
-    fireEvent.click(screen.getByRole('button'));
-    expect(mockHandler).toHaveBeenCalledTimes(1);
-  });
-});
-```
+### Database Testing
+- Test with multiple users to verify RLS
+- Verify credit transactions log correctly
+- Check JSONB fields store/retrieve data
 
-### 2. Integration Testing
-- Test complete user workflows
-- Mock external dependencies (APIs, webhooks)
-- Test error scenarios and edge cases
-- Validate payload structures and transformations
+## Performance
 
-## Performance Guidelines
-
-### 1. React Performance
-- Use `React.memo` for expensive components
-- Implement `useMemo` and `useCallback` appropriately
-- Avoid unnecessary re-renders
-- Profile components with React DevTools
-
-### 2. Bundle Optimization
-- Implement code splitting for routes
+### React Optimization
+- Use `useMemo` for expensive computations
+- Use `useCallback` for function props
 - Lazy load heavy components
-- Optimize bundle size with tree shaking
-- Monitor bundle analysis reports
 
-## Security Considerations
+### Database Optimization
+- Select only needed columns
+- Use indexes on frequently queried fields
+- Batch operations when possible
 
-### 1. Input Validation
+## Security
+
+### Input Validation
+Use Zod for all user inputs:
 ```typescript
-// Validate all user inputs
 import { z } from 'zod';
 
-const profileSchema = z.object({
-  company_name: z.string().min(1).max(100),
-  website_url: z.string().url().optional(),
-  industry: z.string().min(1),
+const prospectSchema = z.object({
+  company_name: z.string().min(1),
+  website_url: z.string().url(),
 });
 
-export const validateProfile = (data: unknown) => {
-  return profileSchema.parse(data);
-};
+const validated = prospectSchema.parse(formData);
 ```
 
-### 2. API Security
-- Validate all API responses
-- Sanitize user inputs before API calls
-- Handle authentication errors properly
-- Implement proper CORS policies
-
-## Deployment and Environment
-
-### 1. Environment Configuration
+### RLS Policy Verification
+Always include `user_id` filter:
 ```typescript
-// Environment variable handling
-export const config = {
-  supabaseUrl: import.meta.env.VITE_SUPABASE_URL!,
-  supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY!,
-  webhookUrl: import.meta.env.VITE_WEBHOOK_URL || '',
-};
-
-// Validate required env vars on startup
-if (!config.supabaseUrl || !config.supabaseAnonKey) {
-  throw new Error('Missing required environment variables');
-}
+// RLS enforces this, but explicit is better
+.eq('user_id', auth.uid())
 ```
 
-### 2. Build Process
-- Ensure TypeScript compilation passes
-- Run linting and formatting checks
-- Execute test suite
-- Validate build artifacts
+## Documentation
 
-## Debugging Guidelines
+Update docs when:
+- Adding new database tables
+- Changing payload structure
+- Modifying N8N workflow
+- Adding new features
 
-### 1. Development Tools
-- Use React DevTools for component debugging
-- Leverage browser DevTools for network and performance
-- Implement structured logging for complex flows
-- Use debugger statements strategically
-
-### 2. Production Debugging
-- Implement error boundary logging
-- Use structured error reporting
-- Monitor API performance and errors
-- Track user interaction patterns
-
-## Documentation Requirements
-
-### 1. Code Documentation
-- Document complex business logic
-- Add JSDoc comments for public APIs
-- Maintain README files for modules
-- Document component props and usage
-
-### 2. Architecture Documentation
-- Keep architecture docs up to date
-- Document integration patterns  
-- Maintain API documentation
-- Update deployment guides
-- **Document dynamic architecture patterns**: How components handle flexible data structures
-- **N8N Integration Docs**: Keep system prompt and response structure documentation current
+Keep docs tight - remove outdated content immediately.
