@@ -424,9 +424,9 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
       {(!companyProfile?.is_complete || !userProfile?.is_complete) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {!companyProfile?.is_complete && (
-            <Card className="border-orange-200 bg-orange-50">
+            <Card className="border-orange-500/20 bg-orange-500/10 dark:border-orange-400/30 dark:bg-orange-400/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-orange-800">
+                <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-300">
                   <Building2 className="h-5 w-5" />
                   Company Profile Setup
                 </CardTitle>
@@ -443,9 +443,9 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
           )}
 
           {!userProfile?.is_complete && (
-            <Card className="border-blue-200 bg-blue-50">
+            <Card className="border-blue-500/20 bg-blue-500/10 dark:border-blue-400/30 dark:bg-blue-400/10">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-800">
+                <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
                   <Target className="h-5 w-5" />
                   User Profile Setup
                 </CardTitle>
