@@ -247,6 +247,65 @@ const renderContent = (content: any): JSX.Element => {
 - Verify all system prompt sections are included
 - Test with various content structures
 
+## CSS-Based Markdown Formatting
+
+### 1. Enhanced Readability with Custom Styles
+The application uses custom CSS rules in `src/index.css` to improve markdown content readability across all research result sections.
+
+**Purpose**: AI-generated content from N8N often includes bold labels followed by text content. Without proper spacing, this renders as continuous text blocks that are difficult to read.
+
+**Solution**: Custom Tailwind prose utilities force proper spacing around structural elements:
+
+```css
+@layer components {
+  /* Enhanced spacing for markdown prose in research results */
+  .prose strong {
+    @apply block mt-6 mb-2 font-semibold;
+  }
+  
+  /* First strong element shouldn't have top margin */
+  .prose > :first-child strong:first-child,
+  .prose strong:first-child {
+    @apply mt-0;
+  }
+  
+  /* Add spacing after paragraphs that follow strong elements */
+  .prose strong + p,
+  .prose strong + ul,
+  .prose strong + ol {
+    @apply mt-2 mb-4;
+  }
+  
+  /* Ensure list items have proper spacing */
+  .prose ul li,
+  .prose ol li {
+    @apply mb-2;
+  }
+  
+  /* Add spacing between paragraphs */
+  .prose p + p {
+    @apply mt-4;
+  }
+}
+```
+
+### 2. How It Works
+- **Block-level bold text**: Forces `<strong>` elements to display as blocks, creating line breaks
+- **Vertical spacing**: Adds consistent margins (24px top, 8px bottom) around headers
+- **Content separation**: Ensures proper gaps between labels and their content
+- **List readability**: Adds spacing between list items for easier scanning
+- **Paragraph breaks**: Separates content blocks for better visual hierarchy
+
+### 3. Benefits
+- ✅ Works with any AI-generated content structure
+- ✅ No changes needed to N8N workflow or prompts
+- ✅ Automatically applies to all markdown content in research results
+- ✅ Maintains consistent formatting across all sections
+- ✅ No frontend logic changes required
+
+### 4. Maintenance
+The CSS rules are defined once in `src/index.css` and apply globally to all `.prose` elements. When markdown content is rendered with `ReactMarkdown`, these styles automatically improve readability without additional code.
+
 ## Troubleshooting
 
 ### 1. Missing Sections
@@ -260,6 +319,7 @@ If content doesn't display properly:
 - Ensure proper markdown formatting in AI response
 - Check for invalid characters in JSON
 - Verify nested object structure is valid
+- Review CSS prose rules in `src/index.css` for spacing adjustments
 
 ### 3. Export Problems
 If exports are incomplete:

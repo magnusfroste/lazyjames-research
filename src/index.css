@@ -146,3 +146,34 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Enhanced spacing for markdown prose in research results */
+  .prose strong {
+    @apply block mt-6 mb-2 font-semibold;
+  }
+  
+  /* First strong element shouldn't have top margin */
+  .prose > :first-child strong:first-child,
+  .prose strong:first-child {
+    @apply mt-0;
+  }
+  
+  /* Add spacing after paragraphs that follow strong elements */
+  .prose strong + p,
+  .prose strong + ul,
+  .prose strong + ol {
+    @apply mt-2 mb-4;
+  }
+  
+  /* Ensure list items have proper spacing */
+  .prose ul li,
+  .prose ol li {
+    @apply mb-2;
+  }
+  
+  /* Add spacing between paragraphs */
+  .prose p + p {
+    @apply mt-4;
+  }
+}
