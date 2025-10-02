@@ -179,16 +179,16 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   );
 
 
-  // Section mapping for icons and titles
+  // Section mapping for icons and titles (aligned with n8n system prompt v4.2 output)
   const getSectionConfig = (key: string) => {
     const configs: Record<string, { icon: any; title: string }> = {
-      strategic_fit: { icon: Target, title: "Strategic Fit & Relevance" },
-      decision_makers: { icon: Users, title: "Organization & Decision Making" },
-      technology_profile: { icon: Cpu, title: "Technology & Innovation Profile" },
-      contact_strategy: { icon: MessageSquare, title: "Contact Strategy & Recommendations" },
-      business_impact: { icon: TrendingUp, title: "Business Impact & Financial Intelligence" },
-      challenges_position: { icon: AlertTriangle, title: "Current Challenges & Market Position" },
-      change_capacity: { icon: Settings, title: "Change Capacity & Digital Maturity" },
+      section_1_strategic_fit: { icon: Target, title: "Strategic Fit & Relevance" },
+      section_2_organization: { icon: Users, title: "Organization & Decision-Making Structure" },
+      section_3_change_capacity: { icon: Settings, title: "Change Capacity & Digital Maturity" },
+      section_4_challenges_market: { icon: AlertTriangle, title: "Current Challenges & Market Position" },
+      section_5_outreach_strategy: { icon: MessageSquare, title: "Personalized Outreach Strategy" },
+      section_6_business_impact: { icon: TrendingUp, title: "Business Impact & Value Proposition" },
+      section_7_message_positioning: { icon: Cpu, title: "Message Positioning & Alignment" },
       section_8_outreach_messages: { icon: Mail, title: "Ready-to-Use Outreach Messages" }
     };
     
