@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Copy, Download, Users, Target, MessageSquare, TrendingUp, Cpu, AlertTriangle, Settings, FileText } from "lucide-react";
+import { Copy, Download, Users, Target, MessageSquare, TrendingUp, Cpu, AlertTriangle, Settings, FileText, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { exportResearchToPDF, exportToJSON, getExportFormat } from "@/lib/exportUtils";
 
@@ -170,8 +171,8 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   };
 
   const renderMarkdownContent = (content: string) => (
-    <div className="prose prose-sm dark:prose-invert max-w-none prose-table:text-sm">
-      <ReactMarkdown>
+    <div className="prose prose-sm dark:prose-invert max-w-none prose-table:text-sm prose-table:border-collapse">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {content}
       </ReactMarkdown>
     </div>
@@ -187,7 +188,8 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
       contact_strategy: { icon: MessageSquare, title: "Contact Strategy & Recommendations" },
       business_impact: { icon: TrendingUp, title: "Business Impact & Financial Intelligence" },
       challenges_position: { icon: AlertTriangle, title: "Current Challenges & Market Position" },
-      change_capacity: { icon: Settings, title: "Change Capacity & Digital Maturity" }
+      change_capacity: { icon: Settings, title: "Change Capacity & Digital Maturity" },
+      section_8_outreach_messages: { icon: Mail, title: "Ready-to-Use Outreach Messages" }
     };
     
     return configs[key] || { 
