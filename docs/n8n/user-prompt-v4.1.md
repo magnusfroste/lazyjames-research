@@ -118,7 +118,7 @@ This user prompt leverages **all 42 company and user profile fields** to provide
 
 ## ANALYSIS DIRECTIVE
 
-Using GPT-4.1 direct reasoning and targeted tool usage (Jina + Hunter), conduct **Enhanced Wassching Method analysis** across all **7 sections**:
+Using GPT-4.1 direct reasoning and targeted tool usage (Jina + Hunter), conduct **Enhanced Wassching Method analysis** across all **8 sections**:
 
 1. **Strategic Fit & Relevance** - Leverage company foundation fields, typical_results, success_story
 2. **Organization & Decision-Making Structure** - Use organizational_personality, target_industries insights
@@ -127,12 +127,14 @@ Using GPT-4.1 direct reasoning and targeted tool usage (Jina + Hunter), conduct 
 5. **Personalized Outreach Strategy** - **CRITICAL**: Apply ALL user strategy fields (introduction_style, communication_style, credibility_preference, preferred_contact_channel, pain_points_focus, expertise_positioning, objection_handling, meeting_format, meeting_duration, followup_timing, nonresponse_handling)
 6. **Business Impact & Value Proposition** - Use typical_results, success_story, credentials, success_metrics
 7. **Message Positioning & Alignment** - Match company communication_style, values, mission, vision
+8. **Ready-to-Use Outreach Messages** - **NEW**: Generate copy-paste ready LinkedIn/Email messages for each persona using preferred_contact_channel, with follow-up templates
 
 **Deploy tools only when information gaps exist.** Deliver actionable business intelligence with:
 - Quantified impact assessments (reference typical_results)
 - Implementation-ready recommendations (aligned with delivery_model)
 - Hyper-personalized outreach strategy (using all 20 user profile fields)
 - Proof-driven value propositions (leveraging success_story and credentials)
+- Copy-paste ready outreach messages (Section 8 for immediate use)
 
 **Output must be in JSON format** with pre-formatted Markdown sections, fully adapted to user's experience level and communication style preferences.
 ```
