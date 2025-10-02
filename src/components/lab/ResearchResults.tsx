@@ -208,7 +208,7 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     if (!results || typeof results !== 'object') return [];
     
     return Object.entries(results)
-      .filter(([key]) => key !== 'executive_summary')
+      .filter(([key]) => !['executive_summary', 'metadata'].includes(key))
       .filter(([, value]) => value && String(value).trim());
   };
 
