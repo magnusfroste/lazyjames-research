@@ -204,7 +204,8 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
     
     return Object.entries(results)
       .filter(([key]) => !['executive_summary', 'metadata'].includes(key))
-      .filter(([, value]) => value && String(value).trim());
+      .filter(([, value]) => value && String(value).trim())
+      .sort((a, b) => a[0].localeCompare(b[0]));
   };
 
   return (
