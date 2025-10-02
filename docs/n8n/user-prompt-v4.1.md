@@ -117,11 +117,6 @@ This user prompt leverages **all 42 company and user profile fields** to provide
 
 ---
 
-## COMPLETE PAYLOAD ACCESS
-{{ JSON.stringify($json.body, null, 2) }}
-
----
-
 ## ANALYSIS DIRECTIVE
 
 Using GPT-4.1 direct reasoning and targeted tool usage (Jina + Hunter), conduct **Enhanced Wassching Method analysis** across all **7 sections**:
@@ -171,10 +166,11 @@ Using GPT-4.1 direct reasoning and targeted tool usage (Jina + Hunter), conduct 
 - **Meeting Intelligence**: Formats asks based on meeting_format and meeting_duration
 
 ### **Token Optimization**
-- **Estimated Tokens**: ~650-700 tokens (comprehensive but efficient)
-- **Essential Context**: All 42 fields mapped without redundant instructions
+- **Estimated Tokens**: ~450-500 tokens (comprehensive and efficient)
+- **Essential Context**: All 42 fields explicitly mapped, no redundant JSON dumps
 - **Efficient Structure**: Clean research brief focused on WHAT to analyze
 - **Field Grouping**: Organized by strategic purpose for GPT-4.1 processing
+- **Zero Waste**: Removed redundant payload stringify (~250 token savings)
 
 ---
 
