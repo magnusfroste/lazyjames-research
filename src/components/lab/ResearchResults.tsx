@@ -170,18 +170,11 @@ export const ResearchResults: React.FC<ResearchResultsProps> = ({ research }) =>
   };
 
   const renderMarkdownContent = (content: string) => (
-    <ReactMarkdown 
-      components={{
-        p: ({ children }) => <p className="text-sm text-muted-foreground leading-relaxed mb-2">{children}</p>,
-        strong: ({ children }) => <strong className="text-foreground font-semibold">{children}</strong>,
-        ul: ({ children }) => <ul className="text-sm text-muted-foreground space-y-1 ml-4">{children}</ul>,
-        li: ({ children }) => <li className="list-disc">{children}</li>,
-        h3: ({ children }) => <h3 className="text-foreground font-semibold text-base mb-2">{children}</h3>,
-        h4: ({ children }) => <h4 className="text-foreground font-medium text-sm mb-1">{children}</h4>,
-      }}
-    >
-      {content}  
-    </ReactMarkdown>
+    <div className="prose prose-sm dark:prose-invert max-w-none prose-table:text-sm">
+      <ReactMarkdown>
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 
 

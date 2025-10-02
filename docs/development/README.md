@@ -358,6 +358,30 @@ Always include `user_id` filter:
 .eq('user_id', auth.uid())
 ```
 
+## Markdown Rendering
+
+**ALWAYS use pure react-markdown with prose classes**
+
+```typescript
+// ✅ CORRECT - Stupid simple & fully dynamic
+const renderMarkdownContent = (content: string) => (
+  <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none prose-table:text-sm">
+    {content}
+  </ReactMarkdown>
+);
+
+// ❌ WRONG - Custom component overrides
+// DO NOT add custom components prop
+// Let Tailwind Typography handle ALL styling
+// N8N system prompt controls presentation
+```
+
+This automatically styles:
+- Tables (with borders, padding, alignment)
+- Lists (bullets, numbering, nesting)
+- Headings (h1-h6 hierarchy)
+- Paragraphs, strong/emphasis, code blocks, etc.
+
 ## Documentation
 
 Update docs when:
