@@ -52,7 +52,7 @@ const Landing = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button size="lg" variant="outline" onClick={() => navigate('/auth')}>
-              View Demo
+              Demo
             </Button>
           </div>
         </div>
