@@ -48,11 +48,29 @@ Minimal required fields for basic functionality, optional fields enhance analysi
 {
   user_id: uuid,
   full_name: text,
+  linkedin_url: text,
+  current_location: text,
+  birthplace: text,
+  date_of_birth: date,
   role_in_organization: text,
+  outreach_experience: text,
+  prospects_per_week: text,
   communication_style: text,
+  introduction_style: text,
+  credibility_preference: text[],
+  preferred_channels: text[],
+  followup_timing: text,
+  nonresponse_handling: text,
+  pain_points_focus: text[],
+  expertise_positioning: text,
+  objection_handling: text[],
+  meeting_format: text[],
+  meeting_duration: text,
+  success_metrics: text[],
   credits: integer,  // Default: 5
   is_complete: boolean,
-  // ... 15+ more fields
+  created_at: timestamp,
+  updated_at: timestamp
 }
 ```
 

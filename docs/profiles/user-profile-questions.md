@@ -2,228 +2,213 @@
 
 Complete reference for all user profile questions used in the Research Engine forms.
 
-## Basic Information
+## Section A: Personal Information
 
 ### 1. Full Name
 - **Field**: `full_name`
 - **Type**: Text (required)
 - **Validation**: 1-100 characters
-- **Purpose**: User identification and personalization
+- **Purpose**: User identification and personalization in outreach
 
-### 2. Email
-- **Field**: `email`
-- **Type**: Email (required)
-- **Validation**: Valid email format
-- **Purpose**: Primary contact and account identification
+### 2. LinkedIn Profile URL
+- **Field**: `linkedin_url`
+- **Type**: URL (optional)
+- **Purpose**: Credibility verification and networking insights
 
-### 3. Job Title
-- **Field**: `job_title`
-- **Type**: Text
-- **Purpose**: Role-specific research contextualization
+### 3. Current City/Location
+- **Field**: `current_location`
+- **Type**: Text (optional)
+- **Purpose**: Local connections and regional personalization
 
-### 4. Department
-- **Field**: `department`
-- **Type**: Select dropdown
+### 4. Birthplace/Hometown
+- **Field**: `birthplace`
+- **Type**: Text (optional)
+- **Purpose**: Shared background and connection opportunities
+
+### 5. Date of Birth
+- **Field**: `date_of_birth`
+- **Type**: Date (optional)
+- **Purpose**: Timing and personalization insights
+
+## Section B: Role & Context
+
+### 6. Role in Organization
+- **Field**: `role_in_organization`
+- **Type**: Select dropdown (required)
 - **Options**:
-  - Executive/Leadership
-  - Marketing
-  - Sales
-  - Product Management
-  - Engineering/Development
-  - Operations
-  - Finance
-  - Human Resources
-  - Customer Success
-  - Business Development
-  - Strategy
+  - CEO/Founder
+  - Sales Director/Manager
+  - Business Development Manager
+  - Marketing Director/Manager
+  - Operations Manager
+  - Partner/Co-founder
+  - Consultant/Advisor
   - Other
-- **Purpose**: Department-specific research focus
+- **Purpose**: Understanding authority level and perspective
 
-## Role & Responsibilities
-
-### 5. Role Type
-- **Field**: `role_type`
-- **Type**: Multi-select checkboxes array
+### 7. Outreach Experience
+- **Field**: `outreach_experience`
+- **Type**: Radio button (required)
 - **Options**:
-  - Individual Contributor
-  - Team Lead/Manager
-  - Director/VP
-  - C-Level Executive
-  - Founder/Owner
-  - Consultant
-  - Freelancer
-  - Other
-- **Purpose**: Understanding decision-making authority and perspective
+  - New (< 1 year)
+  - Beginner (1-2 years)
+  - Experienced (3-5 years)
+  - Expert (5+ years)
+- **Purpose**: Tailoring research complexity and guidance level
 
-### 6. Years of Experience
-- **Field**: `years_of_experience`
-- **Type**: Select dropdown
+### 8. Prospects per Week
+- **Field**: `prospects_per_week`
+- **Type**: Radio button (required)
 - **Options**:
-  - 0-2 years
-  - 3-5 years
-  - 6-10 years
-  - 11-15 years
-  - 16-20 years
-  - 20+ years
-- **Purpose**: Experience level for research depth and complexity
+  - 1-5
+  - 6-15
+  - 16-30
+  - 30+
+  - Variable
+- **Purpose**: Understanding volume and resource requirements
 
-### 7. Key Responsibilities
-- **Field**: `key_responsibilities`
-- **Type**: Textarea
-- **Purpose**: Specific duties for targeted research relevance
+## Section C: Communication Style & Personality
 
-### 8. Decision Making Authority
-- **Field**: `decision_making_authority`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - Budget Approval
-  - Vendor Selection
-  - Strategic Planning
-  - Team Hiring
-  - Product Decisions
-  - Technology Choices
-  - Partnership Approvals
-  - Limited Authority
-- **Purpose**: Understanding influence level for research recommendations
-
-## Research Preferences
-
-### 9. Research Focus Areas
-- **Field**: `research_focus_areas`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - Market Analysis
-  - Competitive Intelligence
-  - Industry Trends
-  - Customer Insights
-  - Technology Research
-  - Financial Analysis
-  - Regulatory Updates
-  - Partnership Opportunities
-- **Purpose**: Customizing research types and priorities
-
-### 10. Communication Style
+### 9. Communication Style
 - **Field**: `communication_style`
-- **Type**: Select dropdown
+- **Type**: Radio button (required)
 - **Options**:
-  - Executive Summary (High-level overview)
-  - Detailed Analysis (Comprehensive insights)
-  - Data-Driven (Charts and metrics focus)
-  - Actionable Insights (Practical recommendations)
-  - Narrative Style (Story-driven presentation)
-- **Purpose**: Tailoring research presentation format
+  - Direct & to-the-point (business first)
+  - Relational & personal (connection first)
+  - Analytical & data-driven (facts first)
+  - Inspiring & visionary (possibilities first)
+  - Consultative & advisory (questions first)
+- **Purpose**: Matching prospect research tone and approach
 
-### 11. Urgency Preference
-- **Field**: `urgency_preference`
-- **Type**: Select dropdown
+### 10. Introduction Style
+- **Field**: `introduction_style`
+- **Type**: Radio button (required)
 - **Options**:
-  - Immediate (Within hours)
-  - Same Day
-  - Within 2-3 days
-  - Within a week
-  - No specific timeline
-- **Purpose**: Setting research delivery expectations
+  - "Hi [name], I'm [your name] from [company]. We help..."
+  - "Hello [name], I noticed you're working on..."
+  - "Hi [name], I thought this might be interesting for you..."
+  - "Dear [name], based on your [observation]..."
+  - "Hi [name], I saw your recent [post/update] about..."
+- **Purpose**: Personalizing opening message recommendations
 
-### 12. Research Depth
-- **Field**: `research_depth`
-- **Type**: Select dropdown
+### 11. Credibility Preference
+- **Field**: `credibility_preference`
+- **Type**: Multi-select checkboxes array (required)
 - **Options**:
-  - Surface Level (Quick overview)
-  - Standard (Moderate detail)
-  - Deep Dive (Comprehensive analysis)
-  - Expert Level (Industry specialist depth)
-- **Purpose**: Determining research thoroughness and complexity
+  - Case studies & concrete examples
+  - Methodology & frameworks
+  - Team credentials & experience
+  - Client testimonials & references
+  - Industry awards & recognition
+  - Personal expertise & track record
+- **Purpose**: Identifying relevant proof points to highlight
 
-## Goals & Objectives
+## Section D: Outreach Preferences
 
-### 13. Primary Goals
-- **Field**: `primary_goals`
-- **Type**: Multi-select checkboxes array
+### 12. Preferred Contact Channels
+- **Field**: `preferred_channels`
+- **Type**: Multi-select checkboxes array (required)
 - **Options**:
-  - Strategic Planning
-  - Market Entry
-  - Competitive Analysis
-  - Product Development
-  - Investment Decisions
-  - Partnership Evaluation
-  - Risk Assessment
-  - Opportunity Identification
-- **Purpose**: Aligning research with user objectives
+  - LinkedIn message
+  - Email outreach
+  - Phone call
+  - Referral introduction
+  - Social media (Twitter, etc.)
+  - Event/networking meeting
+- **Purpose**: Channel-specific prospect research and contact strategy
 
-### 14. Success Metrics
+### 13. Follow-up Timing
+- **Field**: `followup_timing`
+- **Type**: Radio button (required)
+- **Options**:
+  - Quick & persistent (within 3 days)
+  - Moderate & respectful (within 1 week)
+  - Patient & strategic (within 2 weeks)
+  - Varies per prospect
+- **Purpose**: Timing recommendations for follow-up sequences
+
+### 14. Non-response Handling
+- **Field**: `nonresponse_handling`
+- **Type**: Radio button (required)
+- **Options**:
+  - Multiple follow-ups until clear 'no'
+  - 2-3 attempts then move on
+  - 1 follow-up then stop
+  - Depends on prospect value/fit
+- **Purpose**: Persistence strategy alignment
+
+## Section E: Value Proposition & Messaging
+
+### 15. Pain Points Focus
+- **Field**: `pain_points_focus`
+- **Type**: Multi-select checkboxes array (required)
+- **Options**:
+  - Cost/efficiency issues
+  - Growth/scaling challenges
+  - Technology/digital gaps
+  - Compliance/risk issues
+  - Process/operational friction
+  - Team/organizational challenges
+  - Customer experience problems
+- **Purpose**: Identifying relevant prospect pain points to research
+
+### 16. Expertise Positioning
+- **Field**: `expertise_positioning`
+- **Type**: Radio button (required)
+- **Options**:
+  - As industry specialist/expert
+  - As problem solver/consultant
+  - As strategic partner/advisor
+  - As innovative solution provider
+  - As results-driven implementer
+- **Purpose**: Framing research insights around positioning
+
+### 17. Objection Handling Approach
+- **Field**: `objection_handling`
+- **Type**: Multi-select checkboxes array (required)
+- **Options**:
+  - Address upfront in initial message
+  - Respond when objections arise
+  - Use social proof to preempt
+  - Ask questions to understand concerns
+  - Provide alternatives/flexibility
+- **Purpose**: Anticipating and researching potential objections
+
+## Section F: Meeting & Conversion Preferences
+
+### 18. Meeting Format
+- **Field**: `meeting_format`
+- **Type**: Multi-select checkboxes array (required)
+- **Options**:
+  - Video call (Teams/Zoom)
+  - Phone call
+  - In-person meeting
+  - Coffee meeting (informal)
+  - Prospect's office visit
+  - Flexible - prospect choice
+- **Purpose**: Meeting logistics and scheduling insights
+
+### 19. Meeting Duration
+- **Field**: `meeting_duration`
+- **Type**: Radio button (required)
+- **Options**:
+  - 15-30 minutes (quick qualification)
+  - 30-45 minutes (standard discovery)
+  - 45-60 minutes (deep dive)
+  - 60+ minutes (comprehensive)
+- **Purpose**: Time allocation and meeting preparation depth
+
+### 20. Success Metrics
 - **Field**: `success_metrics`
-- **Type**: Textarea
-- **Purpose**: How user measures research value and impact
-
-### 15. Key Challenges
-- **Field**: `key_challenges`
-- **Type**: Textarea
-- **Purpose**: Current obstacles research should help address
-
-## Preferences & Context
-
-### 16. Industry Expertise
-- **Field**: `industry_expertise`
-- **Type**: Multi-select checkboxes array
+- **Type**: Multi-select checkboxes array (required)
 - **Options**:
-  - Technology/Software
-  - Healthcare/Biotech
-  - Financial Services
-  - Manufacturing
-  - Retail/E-commerce
-  - Professional Services
-  - Education
-  - Government/Public Sector
-  - Non-profit
-  - Media/Entertainment
-  - Other
-- **Purpose**: Leveraging domain knowledge for research context
-
-### 17. Geographic Interests
-- **Field**: `geographic_interests`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - North America
-  - Europe
-  - Asia-Pacific
-  - Latin America
-  - Middle East/Africa
-  - Specific Countries
-  - Global Markets
-- **Purpose**: Focusing research on relevant geographic regions
-
-### 18. Language Preferences
-- **Field**: `language_preferences`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - English
-  - Spanish
-  - French
-  - German
-  - Chinese (Mandarin)
-  - Japanese
-  - Portuguese
-  - Other
-- **Purpose**: Research source language and presentation preferences
-
-### 19. Information Sources
-- **Field**: `preferred_sources`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - Industry Reports
-  - Academic Research
-  - News Articles
-  - Company Filings
-  - Expert Interviews
-  - Social Media
-  - Government Data
-  - Trade Publications
-- **Purpose**: Customizing research source mix and credibility
-
-### 20. Additional Context
-- **Field**: `additional_context`
-- **Type**: Textarea
-- **Purpose**: Any other relevant information for research personalization
+  - Response rate %
+  - Meeting booking rate %
+  - Qualified opportunities
+  - Conversion to proposal
+  - Closed deals
+  - All of the above
+- **Purpose**: Aligning research insights with user's KPIs
 
 ## Metadata Fields
 
@@ -231,6 +216,12 @@ Complete reference for all user profile questions used in the Research Engine fo
 - **Field**: `is_complete`
 - **Type**: Boolean
 - **Purpose**: Tracking profile setup status
+
+### Credits
+- **Field**: `credits`
+- **Type**: Integer
+- **Default**: 5
+- **Purpose**: Available research credits (1 credit per research)
 
 ### Timestamps
 - **Field**: `created_at`
@@ -248,22 +239,30 @@ Complete reference for all user profile questions used in the Research Engine fo
 
 ## Form Implementation Notes
 
-### Progressive Disclosure
-- Basic information is collected first
-- Advanced preferences are optional
-- Profile completion percentage encourages full setup
+### Multi-Step Wizard
+- 6 sections presented as sequential steps
+- Clear progress indication
+- Navigation between steps
+- Final review before completion
 
-### Smart Defaults
-- Department-appropriate research focus areas
-- Role-based decision making authority suggestions
-- Experience-level appropriate research depth
+### Required vs Optional Fields
+- **Required**: role_in_organization, outreach_experience, prospects_per_week, communication_style, introduction_style, credibility_preference, preferred_channels, followup_timing, nonresponse_handling, pain_points_focus, expertise_positioning, objection_handling, meeting_format, meeting_duration, success_metrics
+- **Optional**: linkedin_url, current_location, birthplace, date_of_birth
+
+### Progressive Disclosure
+- Basic personal information collected first
+- Role and context establish baseline
+- Communication preferences refine approach
+- Meeting preferences finalize conversion strategy
 
 ### Validation Strategy
-- Required fields are minimal (name, email)
-- Optional fields provide enhanced personalization
+- Required fields clearly marked with asterisks
 - Real-time validation with helpful error messages
+- Array fields require at least one selection
+- Profile marked complete only when all required fields populated
 
 ### Data Storage
-- All data stored in Supabase `user_profiles` table
+- All data stored in Supabase `lab_user_profiles` table
 - Array fields stored as PostgreSQL arrays
-- Proper indexing for search and filtering performance
+- Credits initialized to 5 on profile creation
+- Proper indexing for performance
