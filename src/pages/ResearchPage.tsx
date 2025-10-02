@@ -150,30 +150,28 @@ const ResearchPage = () => {
           const errorText = await response.text();
           console.error('❌ Webhook error response:', errorText);
           
-          // Update research record with error
+          // Keep status as pending but log error for resend
           await supabase
             .from('lab_prospect_research')
             .update({ 
-              status: 'failed', 
-              error_message: `Webhook failed: ${response.status} - ${errorText}` 
+              error_message: `Webhook failed: ${response.status} - ${errorText}. Click "Resend" to retry.` 
             })
             .eq('id', researchRecord.id);
         }
       }).catch(async (webhookError) => {
         console.error('🚨 Fetch error:', webhookError);
         
-        // Update research record with error
+        // Keep status as pending but log error for resend
         let errorMessage = 'Unknown webhook error';
         if (webhookError instanceof TypeError && webhookError.message.includes('Failed to fetch')) {
-          errorMessage = `Cannot reach ${webhookUrl} - likely a CORS issue. Check n8n webhook settings.`;
+          errorMessage = `Cannot reach ${webhookUrl} - likely CORS or n8n not running. Activate n8n workflow and click "Resend".`;
         } else {
-          errorMessage = webhookError.message || 'Webhook request failed';
+          errorMessage = `${webhookError.message || 'Webhook request failed'}. Click "Resend" to retry.`;
         }
         
         await supabase
           .from('lab_prospect_research')
           .update({ 
-            status: 'failed', 
             error_message: errorMessage 
           })
           .eq('id', researchRecord.id);

@@ -585,26 +585,56 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                         </div>
                         
                         {item.error_message && (
-                          <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                          <div className="mt-2 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2 rounded border border-amber-200 dark:border-amber-800">
+                            <AlertCircle className="h-4 w-4 inline mr-1" />
                             {item.error_message}
                           </div>
                         )}
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        {item.status === 'completed' && (
+                        {item.status === 'pending' && (
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => exportResearch(item)}
+                            onClick={() => resendWebhook(item)}
+                            className="flex items-center gap-1"
                           >
-                            <Download className="h-4 w-4 mr-2" />
-                            Export
+                            <RefreshCw className="h-3 w-3" />
+                            Resend
                           </Button>
                         )}
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                        {item.status === 'completed' && (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setSelectedResearch(item)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => exportResearch(item)}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Export
+                            </Button>
+                          </>
+                        )}
+                        {item.status === 'failed' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => resendWebhook(item)}
+                            className="flex items-center gap-1"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                            Retry
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -643,6 +673,13 @@ export const ResearchDashboard: React.FC<ResearchDashboardProps> = ({
                       <div className="text-xs text-muted-foreground">
                         Created {new Date(item.created_at).toLocaleDateString()}
                       </div>
+                      
+                      {item.error_message && (
+                        <div className="mt-2 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2 rounded border border-amber-200 dark:border-amber-800">
+                          <AlertCircle className="h-4 w-4 inline mr-1" />
+                          {item.error_message}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex items-center gap-2">
