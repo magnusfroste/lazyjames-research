@@ -106,7 +106,7 @@ const ResearchPage = () => {
       // Show success message and redirect immediately
       toast({
         title: "Research Started!",
-        description: `Research initiated for ${data.company_name}. 1 credit deducted. You can track progress in the dashboard.`,
+        description: `Research started for ${data.company_name}. 1 credit used.`,
         duration: 5000
       });
 
