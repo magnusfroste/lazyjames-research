@@ -30,6 +30,25 @@ Research Engine is an AI-powered prospect analysis platform that transforms how 
 
 ---
 
+## Table of Contents
+
+1. [Executive Summary](#executive-summary)
+2. [System Architecture](#system-architecture)
+3. [User Profile System](#user-profile-system)
+4. [Company Profile System](#company-profile-system)
+5. [Credit System](#credit-system)
+6. [Research Flow](#research-flow)
+7. [Enhanced Payload Structure](#enhanced-payload-structure)
+8. [Dynamic Response Parsing](#dynamic-response-parsing)
+9. [AI Prompt Engineering & Analysis Framework](#ai-prompt-engineering--analysis-framework)
+10. [Database Schema](#database-schema)
+11. [Security & Authentication](#security--authentication)
+12. [Export & Reporting](#export--reporting)
+13. [Future Roadmap](#future-roadmap)
+14. [Appendices](#appendices)
+
+---
+
 ## System Architecture
 
 ### High-Level Architecture
@@ -438,14 +457,44 @@ graph TD
     C --> D[Log Transaction]
     D --> E[Build Enhanced Payload]
     E --> F[Send to N8N Webhook]
-    F --> G[AI Processing]
-    G --> H[Return JSON Response]
+    F --> G[AI Processing with System Prompt]
+    G --> H[Return Dynamic JSON Response]
     H --> I[Parse & Store JSONB]
-    I --> J[Display Results]
+    I --> J[Auto-Discover & Display Sections]
     J --> K[Export Options]
 ```
 
-### Enhanced Payload Structure
+### Data Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant Frontend
+    participant PayloadBuilder
+    participant N8N
+    participant SystemPrompt
+    participant AI
+    participant ResponseParser
+    participant Database
+    
+    Frontend->>PayloadBuilder: Prospect + Profiles
+    PayloadBuilder->>PayloadBuilder: Derive Intelligence Hints
+    PayloadBuilder->>N8N: Enhanced Payload
+    N8N->>SystemPrompt: Load Master Prompt
+    SystemPrompt->>AI: Structured Analysis Request
+    AI-->>N8N: Dynamic JSONB Response
+    N8N-->>ResponseParser: Raw JSON
+    ResponseParser->>ResponseParser: Extract fit_score
+    ResponseParser->>ResponseParser: Validate structure
+    ResponseParser->>Database: Store in research_results
+    Database-->>Frontend: Display Dynamic Sections
+```
+
+**Key Components:**
+- **Enhanced Payload** (Section 7) - Intelligence-enriched input data
+- **System Prompt** (Section 9) - AI analysis framework controller
+- **Dynamic Response** (Section 8) - Flexible, future-proof output structure
+
+### Payload Overview
 
 The webhook payload includes:
 
@@ -504,13 +553,881 @@ The webhook payload includes:
 }
 ```
 
-### Response Parsing & Storage
+**For complete payload and response documentation, see:**
+- [Section 7: Enhanced Payload Structure](#enhanced-payload-structure) - Detailed payload architecture
+- [Section 8: Dynamic Response Parsing](#dynamic-response-parsing) - Response handling system
 
-**Dynamic JSONB Schema:**
-- Stored in `lab_prospect_research.research_results`
-- No fixed schema - adapts to AI output
-- Frontend auto-discovers sections
-- Markdown rendering with `react-markdown`
+---
+
+## Enhanced Payload Structure
+
+### Overview
+
+The enhanced payload provides **stable input structure** to N8N while enabling **dynamic AI-generated output**. The payload structure remains consistent across all research requests, but the AI's system prompt controls what analysis sections are generated.
+
+**Design Philosophy:**
+- Frontend sends comprehensive context (user + company profiles + prospect data)
+- Backend derives intelligence hints from this context
+- N8N system prompt adapts analysis based on these hints
+- Output structure can evolve without frontend code changes
+
+### Core Components
+
+#### 1. Prospect Data
+```typescript
+interface ProspectData {
+  company_name: string;
+  website_url: string;
+  linkedin_url?: string;
+  research_type: 'quick' | 'standard' | 'deep';
+  notes?: string;
+}
+```
+
+**Purpose**: Basic information about the target company being researched.
+
+#### 2. Company Profile (Complete Context)
+```typescript
+interface CompanyProfile {
+  company_name: string;
+  website_url: string;
+  linkedin_url?: string;
+  business_registration?: string;
+  industry: string;
+  company_size: string;
+  years_active?: string;
+  geographic_markets: string[];
+  mission: string;
+  vision?: string;
+  values: string[];
+  organizational_personality: string[];
+  offering_type: string[];
+  main_offerings: string[];
+  target_industries: string[];
+  ideal_client_size: string[];
+  project_scope: string;
+  unique_differentiators: string[];
+  credentials: string[];
+  typical_results: string[];
+  known_clients?: boolean;
+  known_clients_list?: string;
+  success_story?: string;
+  delivery_model: string[];
+  pricing_positioning: string;
+  communication_style: string;
+  // + metadata fields
+}
+```
+
+**Purpose**: Complete profile of the research requestor's company, used for strategic alignment analysis.
+
+#### 3. User Profile (Complete Context)
+```typescript
+interface UserProfile {
+  full_name: string;
+  linkedin_profile?: string;
+  current_location?: string;
+  birthplace?: string;
+  date_of_birth?: Date;
+  role_in_organization: string;
+  outreach_experience: string;
+  prospects_per_week: string;
+  communication_style: string;
+  introduction_style: string;
+  credibility_preference: string[];
+  preferred_contact_channel: string[];
+  followup_timing: string;
+  nonresponse_handling: string;
+  pain_points_focus: string[];
+  expertise_positioning: string;
+  objection_handling: string[];
+  meeting_format: string[];
+  meeting_duration: string;
+  success_metrics: string[];
+  // + metadata fields
+}
+```
+
+**Purpose**: User's complete profile for personalizing analysis tone, depth, and recommendations.
+
+### Intelligence Components
+
+#### 4. Processing Hints (Auto-Generated)
+```typescript
+interface ProcessingHints {
+  research_depth: 'quick' | 'standard' | 'deep';
+  focus_areas: string[];
+  communication_style: 'professional' | 'casual' | 'consultative';
+  industry_context?: string;
+  priority_level: 'low' | 'medium' | 'high';
+}
+```
+
+**Purpose**: Intelligent processing guidance derived from user and company profiles.
+
+**Focus Areas** (examples):
+- `decision_makers` - Enhanced decision-making structure analysis
+- `pain_points` - Deep challenge identification and positioning
+- `contact_info` - Prioritized contact strategy and personas
+- `competitive_landscape` - Competitive positioning analysis
+- `financial_health` - Business impact and ROI projections
+- `growth_opportunities` - Strategic initiative alignment
+
+**Derivation Logic:**
+```javascript
+function deriveCommunicationStyle(userProfile, companyProfile) {
+  if (userProfile.communication_style?.includes('formal') || 
+      companyProfile.company_size === 'Enterprise (500+)') {
+    return 'professional';
+  }
+  if (companyProfile.company_size === 'Startup (1-10)' || 
+      userProfile.communication_style?.includes('casual')) {
+    return 'casual';
+  }
+  return 'consultative'; // default
+}
+```
+
+#### 5. Metadata
+```typescript
+interface PayloadMetadata {
+  version: string;
+  creator: string;
+  processing_context: {
+    user_experience_level: 'beginner' | 'intermediate' | 'expert';
+    company_maturity: 'startup' | 'growth' | 'enterprise';
+    target_market_focus: string;
+  };
+}
+```
+
+**Purpose**: Contextual information for analysis adaptation and personalization.
+
+**Experience Level Derivation:**
+```javascript
+function deriveExperienceLevel(outreachExperience) {
+  const exp = outreachExperience?.toLowerCase() || '';
+  if (exp.includes('new') || exp.includes('beginner') || 
+      exp.includes('less than 1')) {
+    return 'beginner';
+  }
+  if (exp.includes('expert') || exp.includes('senior') || 
+      exp.includes('10+') || exp.includes('extensive')) {
+    return 'expert';
+  }
+  return 'intermediate';
+}
+```
+
+**Company Maturity Derivation:**
+```javascript
+function deriveCompanyMaturity(companySize, yearsActive) {
+  if (companySize?.includes('Startup') || yearsActive < 3) {
+    return 'startup';
+  }
+  if (companySize?.includes('Enterprise') || yearsActive > 10) {
+    return 'enterprise';
+  }
+  return 'growth';
+}
+```
+
+### Complete Payload Structure
+
+```typescript
+interface EnhancedWebhookPayload {
+  prospect_data: ProspectData;
+  company_profile: CompanyProfile;
+  user_profile: UserProfile;
+  processing_hints: ProcessingHints;
+  metadata: PayloadMetadata;
+}
+```
+
+### Payload Generation Process
+
+**Implementation** (`src/lib/webhookPayloadUtils.ts`):
+
+```typescript
+function enhanceWebhookPayload(
+  prospectData: any, 
+  companyProfile: any, 
+  userProfile: any,
+  researchId: string | null = null
+): EnhancedWebhookPayload {
+  const processing_hints = {
+    research_depth: prospectData.research_type,
+    focus_areas: generateFocusAreas(
+      prospectData.research_type, 
+      userProfile, 
+      companyProfile
+    ),
+    communication_style: deriveCommunicationStyle(userProfile, companyProfile),
+    industry_context: companyProfile?.industry,
+    priority_level: prospectData.research_type === 'deep' ? 'high' : 
+                   prospectData.research_type === 'quick' ? 'low' : 'medium'
+  };
+
+  const metadata = {
+    version: '1.0.0',
+    creator: 'Research Engine v1.0',
+    processing_context: {
+      user_experience_level: deriveExperienceLevel(userProfile?.outreach_experience),
+      company_maturity: deriveCompanyMaturity(
+        companyProfile?.company_size, 
+        companyProfile?.years_active
+      ),
+      target_market_focus: companyProfile?.target_market || 'General Market'
+    }
+  };
+
+  return {
+    prospect_data: prospectData,
+    company_profile: companyProfile,
+    user_profile: userProfile,
+    processing_hints,
+    metadata
+  };
+}
+```
+
+### Usage in N8N Workflow
+
+**Accessing Payload Data:**
+```javascript
+// In N8N nodes, access payload data:
+const prospectName = $json.prospect_data.company_name;
+const researchDepth = $json.processing_hints.research_depth;
+const userExperience = $json.metadata.processing_context.user_experience_level;
+const focusAreas = $json.processing_hints.focus_areas;
+```
+
+**Adaptive Processing:**
+```javascript
+// Adapt analysis based on hints:
+if ($json.processing_hints.research_depth === 'quick') {
+  // Use faster model, focus on key sections
+  model = 'gpt-4o-mini';
+  sections = ['strategic_fit', 'contact_strategy'];
+} else if ($json.processing_hints.research_depth === 'deep') {
+  // Use advanced model, comprehensive analysis
+  model = 'gpt-5';
+  sections = ['all'];
+}
+
+// Prioritize based on focus areas:
+if ($json.processing_hints.focus_areas.includes('decision_makers')) {
+  enhanceSections = ['organization_decision_making', 'contact_strategy'];
+}
+```
+
+### Validation & Best Practices
+
+**Required Field Validation:**
+```typescript
+function validatePayload(payload: EnhancedWebhookPayload): boolean {
+  return !!(
+    payload.prospect_data?.company_name &&
+    payload.prospect_data?.website_url &&
+    payload.processing_hints?.research_depth &&
+    payload.metadata?.version
+  );
+}
+```
+
+**Default Value Handling:**
+```typescript
+const safePayload = {
+  ...payload,
+  processing_hints: {
+    research_depth: 'standard',
+    focus_areas: ['strategic_fit', 'decision_makers'],
+    communication_style: 'professional',
+    priority_level: 'medium',
+    ...payload.processing_hints
+  }
+};
+```
+
+**Best Practices:**
+1. ✅ Always validate required fields before sending
+2. ✅ Provide sensible defaults for missing profile data
+3. ✅ Include version in metadata for compatibility
+4. ✅ Maintain processing context throughout workflow
+5. ✅ Implement fallback strategies for missing intelligence data
+
+**For detailed examples and additional documentation:**
+- See `/docs/payload/README.md` for comprehensive payload documentation
+- See `/docs/n8n/system-prompt-v4.2.md` for how N8N uses this payload
+
+---
+
+## Dynamic Response Parsing
+
+### Overview
+
+The Research Engine uses a **dynamic response parsing system** that automatically adapts to any AI-generated content structure. This architecture enables the N8N system prompt to control the response structure without requiring frontend code changes.
+
+**Core Principle:** The N8N system prompt is the master controller. The frontend automatically discovers and renders whatever structure the AI returns.
+
+### Architecture
+
+```mermaid
+graph LR
+    A[AI Response] --> B[Parse JSON]
+    B --> C{Validate Required Fields}
+    C -->|fit_score exists| D[Extract Required Data]
+    C -->|Missing| E[Error State]
+    D --> F[Store Full JSONB]
+    F --> G[Auto-Discover Sections]
+    G --> H[Dynamic Rendering]
+    H --> I[Display Results]
+    H --> J[Export to PDF]
+```
+
+### Response Structure
+
+#### Required Fields
+```typescript
+interface MinimumResponse {
+  executive_summary: {
+    fit_score: number;  // 1-100, REQUIRED
+    // ... other fields flexible
+  };
+  // All other sections: DYNAMIC and OPTIONAL
+}
+```
+
+#### Dynamic Sections (Examples)
+The AI can generate ANY sections it wants. Common examples:
+
+```typescript
+interface DynamicResponse {
+  executive_summary: {
+    fit_score: number;
+    overall_assessment: string;
+    key_opportunities: string[];
+    potential_challenges: string[];
+  };
+  strategic_fit?: {
+    alignment_score: number;
+    strengths: string[];
+    opportunities: string[];
+  };
+  decision_makers?: {
+    key_contacts: Contact[];
+    organizational_structure: string;
+  };
+  // Any other sections the AI generates...
+}
+```
+
+**Key Point:** Only `executive_summary.fit_score` is required. Everything else is discovered dynamically.
+
+### Response Processing Flow
+
+#### 1. Parse & Validate (`src/lib/researchResponseUtils.ts`)
+
+```typescript
+export const parseAndSaveN8nResponse = async (
+  responseText: string,
+  researchId: string,
+  prospectCompanyName: string
+): Promise<{ success: boolean; fitScore?: number; error?: string }> => {
+  try {
+    // Parse the raw JSON response
+    const parsedResponse = JSON.parse(responseText);
+    
+    // Extract the REQUIRED fit_score
+    const fitScore = parsedResponse?.executive_summary?.fit_score;
+    
+    if (!fitScore) {
+      throw new Error('Response missing required fit_score');
+    }
+    
+    // Store the ENTIRE response as JSONB
+    const { error } = await supabase
+      .from('lab_prospect_research')
+      .update({
+        research_results: parsedResponse,  // Full dynamic structure
+        fit_score: fitScore,               // Extracted for querying
+        status: 'completed',
+        completed_at: new Date().toISOString()
+      })
+      .eq('id', researchId);
+    
+    if (error) throw error;
+    
+    return { success: true, fitScore };
+  } catch (error) {
+    console.error('Failed to parse N8N response:', error);
+    return { 
+      success: false, 
+      error: error.message 
+    };
+  }
+};
+```
+
+#### 2. Auto-Discover Sections (`src/components/lab/ResearchResults.tsx`)
+
+```typescript
+const ResearchResults = ({ research }) => {
+  const { research_results } = research;
+  
+  // Auto-discover all sections except executive_summary
+  const dynamicSections = Object.keys(research_results || {})
+    .filter(key => key !== 'executive_summary');
+  
+  return (
+    <div>
+      {/* Executive Summary - Always First */}
+      <ExecutiveSummary data={research_results.executive_summary} />
+      
+      {/* Dynamic Sections - Auto-Discovered */}
+      {dynamicSections.map(sectionKey => (
+        <DynamicSection
+          key={sectionKey}
+          title={getSectionTitle(sectionKey)}
+          content={research_results[sectionKey]}
+        />
+      ))}
+    </div>
+  );
+};
+```
+
+#### 3. Section Title Mapping
+
+```typescript
+const sectionMapping: Record<string, string> = {
+  strategic_fit: "Strategic Fit Analysis",
+  decision_makers: "Decision Makers & Contacts",
+  organization_decision_making: "Organizational Decision Making",
+  challenges_market_position: "Challenges & Market Position",
+  technology_integration: "Technology Integration",
+  financial_impact: "Financial Impact & ROI",
+  contact_strategy: "Contact Strategy",
+  implementation_roadmap: "Implementation Roadmap",
+  // Fallback for unknown sections
+  [key]: key.split('_').map(w => 
+    w.charAt(0).toUpperCase() + w.slice(1)
+  ).join(' ')
+};
+```
+
+### Content Rendering System
+
+#### Multi-Type Content Handler
+
+```typescript
+const renderContent = (content: any): React.ReactNode => {
+  // Handle strings (including markdown)
+  if (typeof content === 'string') {
+    return <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>;
+  }
+  
+  // Handle arrays
+  if (Array.isArray(content)) {
+    return (
+      <ul className="list-disc list-inside space-y-1">
+        {content.map((item, i) => (
+          <li key={i}>{renderContent(item)}</li>
+        ))}
+      </ul>
+    );
+  }
+  
+  // Handle objects
+  if (typeof content === 'object' && content !== null) {
+    return (
+      <div className="space-y-4">
+        {Object.entries(content).map(([key, value]) => (
+          <div key={key}>
+            <strong className="font-semibold">
+              {key.replace(/_/g, ' ').toUpperCase()}:
+            </strong>
+            <div className="ml-4">{renderContent(value)}</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Fallback for primitives
+  return <span>{String(content)}</span>;
+};
+```
+
+### CSS-Based Markdown Formatting
+
+**Enhanced Typography** (`src/index.css`):
+```css
+/* Markdown content styling for dynamic AI responses */
+.prose strong {
+  @apply font-semibold text-foreground;
+  margin-right: 0.5rem;
+}
+
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose ul, .prose ol {
+  @apply ml-6 mb-4 space-y-2;
+}
+
+.prose li {
+  @apply leading-relaxed;
+}
+
+/* Ensure proper spacing in dynamic sections */
+.research-content > * + * {
+  @apply mt-4;
+}
+```
+
+### Export Integration
+
+**PDF Export** (`src/lib/exportUtils.ts`):
+```typescript
+export const exportResearchToPDF = async (research: any) => {
+  const { research_results, prospect_company_name } = research;
+  
+  // Automatically includes ALL dynamic sections
+  const allSections = Object.keys(research_results);
+  
+  // No code changes needed when AI adds new sections
+  allSections.forEach(sectionKey => {
+    const sectionTitle = getSectionTitle(sectionKey);
+    const sectionContent = research_results[sectionKey];
+    
+    // Render to PDF with proper formatting
+    addSectionToPDF(sectionTitle, sectionContent);
+  });
+};
+```
+
+**JSON Export:**
+```typescript
+// Export raw JSONB for data portability
+const exportJSON = () => {
+  const blob = new Blob(
+    [JSON.stringify(research.research_results, null, 2)],
+    { type: 'application/json' }
+  );
+  downloadBlob(blob, `${prospect_company_name}_data.json`);
+};
+```
+
+### Database Storage
+
+**JSONB Field** (`lab_prospect_research.research_results`):
+```sql
+CREATE TABLE lab_prospect_research (
+  -- ... other fields
+  research_results jsonb,  -- Stores ENTIRE dynamic response
+  fit_score integer,       -- Extracted for easy querying
+  -- ... other fields
+);
+
+-- Index for performance
+CREATE INDEX idx_research_fit_score 
+ON lab_prospect_research(fit_score DESC);
+
+-- JSONB query capabilities
+SELECT * FROM lab_prospect_research
+WHERE research_results->'executive_summary'->>'fit_score' > '70';
+```
+
+### Benefits of Dynamic Architecture
+
+1. **Future-Proof**: Add new analysis sections without code deployment
+2. **System Prompt Control**: N8N controls structure via prompts, not hardcode
+3. **Flexible Schema**: Adapt to different AI models and analysis types
+4. **Zero Frontend Updates**: New sections auto-render immediately
+5. **Version Compatibility**: Old and new response formats coexist
+6. **Export Continuity**: PDF/JSON exports work regardless of structure
+
+### Example Evolution
+
+**Version 1 Response:**
+```json
+{
+  "executive_summary": {
+    "fit_score": 85,
+    "overview": "Strong alignment..."
+  },
+  "decision_makers": {...}
+}
+```
+
+**Version 2 Response (New Sections):**
+```json
+{
+  "executive_summary": {
+    "fit_score": 85,
+    "overview": "Strong alignment..."
+  },
+  "decision_makers": {...},
+  "competitive_analysis": {...},    // NEW - auto-renders
+  "technology_stack": {...},        // NEW - auto-renders
+  "sustainability_alignment": {...} // NEW - auto-renders
+}
+```
+
+**No frontend code changes required!**
+
+### Error Handling
+
+```typescript
+// Graceful degradation
+const renderSection = (sectionKey: string, content: any) => {
+  try {
+    return renderContent(content);
+  } catch (error) {
+    console.error(`Failed to render section ${sectionKey}:`, error);
+    return (
+      <div className="text-muted-foreground italic">
+        Unable to display this section. Raw data available in JSON export.
+      </div>
+    );
+  }
+};
+```
+
+**For detailed examples and additional documentation:**
+- See `/docs/response/README.md` for comprehensive response documentation
+- See `/docs/n8n/system-prompt-v4.2.md` for AI output structure control
+
+---
+
+## AI Prompt Engineering & Analysis Framework
+
+### Overview
+
+The Research Engine uses the **Enhanced Wassching Method** as its AI analysis framework, controlled entirely through the N8N system prompt. The system prompt defines the analysis structure, reasoning approach, and output format.
+
+### Architecture
+
+```mermaid
+graph TD
+    A[Enhanced Payload] --> B[N8N Workflow]
+    B --> C[Load System Prompt v4.2]
+    C --> D[Construct User Prompt]
+    D --> E[AI Model - GPT-5/GPT-4.1]
+    E --> F[Jina Reader Tool]
+    E --> G[Hunter Tool]
+    F --> E
+    G --> E
+    E --> H[Structured Response]
+    H --> I[Dynamic JSONB Output]
+```
+
+### System Prompt Architecture
+
+**Location:** `/docs/n8n/system-prompt-v4.2.md`
+
+**Core Components:**
+1. **Analysis Framework** - Enhanced Wassching Method (7 sections)
+2. **Tool Orchestration** - Jina Reader (web scraping), Hunter (contact discovery)
+3. **Adaptive Persona** - Adjusts tone based on user experience level
+4. **Output Structure** - JSON with pre-formatted Markdown sections
+5. **Quality Standards** - Scoring, confidence levels, quantification
+
+### Enhanced Wassching Method Framework
+
+**7 Core Analysis Sections:**
+
+1. **Strategic Fit** - Alignment between prospect and your offerings
+2. **Decision-Maker Analysis** - Key contacts and organizational structure
+3. **Change Capacity** - Readiness and ability to implement solutions
+4. **Challenges & Market Position** - Pain points and competitive landscape
+5. **Technology Integration** - Technical readiness and compatibility
+6. **Financial Impact & ROI** - Business case and value quantification
+7. **Contact Strategy** - Personalized outreach recommendations
+8. **Implementation Roadmap** - Action plan with timelines
+
+### User Prompt Construction
+
+**Location:** `/docs/n8n/user-prompt-v4.2.md`
+
+**Structure:**
+```markdown
+# Research Brief
+
+## Prospect Information
+- Company: {prospect_data.company_name}
+- Website: {prospect_data.website_url}
+- Research Depth: {processing_hints.research_depth}
+
+## Your Company Context
+[Complete company_profile data]
+
+## Your Approach & Preferences
+[Complete user_profile data]
+
+## Intelligence Hints
+- Focus Areas: {processing_hints.focus_areas}
+- Communication Style: {processing_hints.communication_style}
+- Experience Level: {metadata.processing_context.user_experience_level}
+- Company Maturity: {metadata.processing_context.company_maturity}
+
+## Instructions
+Analyze the prospect using the Enhanced Wassching Method, adapting your 
+output based on the intelligence hints provided above.
+```
+
+### Model Selection Strategy
+
+**Primary Model:** GPT-5 (gpt-5-2025-08-07)
+- Best for comprehensive analysis
+- Superior reasoning capabilities
+- Handles complex strategic alignment
+
+**Fast Model:** GPT-4.1 Mini (gpt-4.1-mini-2025-04-14)
+- Quick research type
+- Simpler prospects
+- Budget-conscious analysis
+
+**Reasoning Model:** O4 Mini (o4-mini-2025-04-16)
+- Complex multi-step problems
+- Advanced decision-tree analysis
+- Financial modeling scenarios
+
+### Tool Orchestration
+
+**Jina Reader** (`https://r.jina.ai/{url}`)
+- Extracts clean website content
+- Returns markdown-formatted text
+- Used first for all website analysis
+
+**Hunter** (Contact Discovery API)
+- Finds decision-maker emails
+- Only used when needed
+- Respects API rate limits
+
+**Tool Usage Pattern:**
+```javascript
+// N8N Workflow Logic
+1. Receive enhanced payload
+2. Use Jina Reader on prospect website_url
+3. If focus_areas includes 'decision_makers':
+   - Use Hunter to find contacts
+4. Feed all data to AI with system prompt
+5. Return structured JSON response
+```
+
+### Adaptive Output Control
+
+**Experience Level Adaptation:**
+
+**Beginner:**
+- Simplified explanations
+- Step-by-step guidance
+- More context and definitions
+- Conservative recommendations
+
+**Intermediate:**
+- Balanced detail level
+- Professional terminology
+- Moderate complexity
+- Strategic options
+
+**Expert:**
+- Dense insights
+- Advanced analysis
+- Minimal hand-holding
+- Complex strategic recommendations
+
+**Communication Style Adaptation:**
+
+**Professional:**
+- Formal tone
+- Data-driven language
+- Executive summary focus
+- Structured formatting
+
+**Casual:**
+- Conversational tone
+- Relatable examples
+- Friendly language
+- Less rigid structure
+
+**Consultative:**
+- Advisory tone
+- Question-based insights
+- Strategic frameworks
+- Partnership language
+
+### Expected Output Structure
+
+```json
+{
+  "executive_summary": {
+    "fit_score": 85,
+    "overall_assessment": "**Markdown formatted** string",
+    "key_opportunities": ["...", "...", "..."],
+    "potential_challenges": ["...", "...", "..."],
+    "confidence_level": "High"
+  },
+  "strategic_fit": {
+    "alignment_score": 90,
+    "analysis": "**Markdown formatted** deep analysis",
+    "strengths": ["...", "..."],
+    "opportunities": ["...", "..."]
+  },
+  // ... other sections as defined by system prompt
+}
+```
+
+### Quality Standards
+
+**Scoring Methodology:**
+- Fit Score: 1-100 (overall alignment)
+- Section Scores: 1-100 (specific alignment metrics)
+- Confidence Levels: Low, Medium, High, Very High
+
+**Financial Quantification:**
+- Potential ROI percentages
+- Cost saving estimates
+- Revenue opportunity ranges
+- Timeline projections
+
+**Contact Details:**
+- Full names and titles
+- Email addresses (when available)
+- LinkedIn profiles
+- Phone numbers (when available)
+
+### Prompt Version Management
+
+**Current Version:** v4.2
+**Location:** `/docs/n8n/system-prompt-v4.2.md`
+**Changelog:** See `/docs/n8n/README.md`
+
+**Versioning Strategy:**
+- System prompt updates don't require code changes
+- N8N workflow references latest prompt version
+- Old research results remain compatible
+- A/B testing enabled through version switching
+
+### Integration with Payload & Response
+
+**Data Flow:**
+1. Frontend builds **Enhanced Payload** (Section 7)
+2. N8N loads **System Prompt v4.2**
+3. System prompt processes payload data
+4. AI generates **Dynamic Response** (Section 8)
+5. Response stored as JSONB
+6. Frontend auto-renders sections
+
+**Cross-References:**
+- [Enhanced Payload Structure](#enhanced-payload-structure) - Input data
+- [Dynamic Response Parsing](#dynamic-response-parsing) - Output handling
+- `/docs/n8n/system-prompt-v4.2.md` - Complete prompt text
+- `/docs/n8n/user-prompt-v4.2.md` - User prompt construction
+- `/docs/n8n/README.md` - N8N workflow documentation
 
 **Storage Table** (`lab_prospect_research`)
 ```sql
@@ -525,11 +1442,11 @@ CREATE TABLE lab_prospect_research (
   research_type text NOT NULL DEFAULT 'standard',
   webhook_url text NOT NULL,
   status text NOT NULL DEFAULT 'pending',  -- pending, completed, failed
-  research_results jsonb,
-  fit_score integer,
-  decision_makers jsonb,
-  contact_strategy jsonb,
-  value_proposition jsonb,
+  research_results jsonb,  -- Dynamic JSONB: stores entire AI response
+  fit_score integer,       -- Extracted from research_results for querying
+  decision_makers jsonb,   -- Legacy: duplicates data from research_results
+  contact_strategy jsonb,  -- Legacy: duplicates data from research_results
+  value_proposition jsonb, -- Legacy: duplicates data from research_results
   started_at timestamp,
   completed_at timestamp,
   error_message text,
@@ -579,8 +1496,10 @@ erDiagram
         uuid user_id FK
         uuid company_profile_id FK
         uuid user_profile_id FK
-        jsonb research_results
-        text status
+        jsonb research_results "Dynamic AI-generated analysis (any structure)"
+        integer fit_score "Extracted from research_results.executive_summary.fit_score"
+        text status "pending, completed, failed"
+        timestamp completed_at
     }
     
     LAB_CREDIT_TRANSACTIONS {
@@ -589,6 +1508,61 @@ erDiagram
         uuid research_id FK
         integer amount
     }
+```
+
+### Dynamic JSONB Field: `research_results`
+
+The `research_results` field in `lab_prospect_research` stores the complete AI-generated analysis in JSONB format, enabling a future-proof, flexible schema.
+
+**Key Characteristics:**
+- **No Fixed Schema**: Adapts to any AI output structure
+- **Queryable**: PostgreSQL JSONB operators enable complex queries
+- **Indexable**: Can create GIN indexes for performance
+- **Version Compatible**: Old and new response formats coexist
+
+**Storage Example:**
+```sql
+-- Store dynamic response
+UPDATE lab_prospect_research
+SET research_results = '{
+  "executive_summary": {
+    "fit_score": 85,
+    "overall_assessment": "Strong alignment...",
+    "key_opportunities": ["..."]
+  },
+  "strategic_fit": {...},
+  "decision_makers": {...}
+  -- Any other sections AI generates
+}'::jsonb
+WHERE id = 'research-uuid';
+```
+
+**Query Examples:**
+```sql
+-- Extract fit_score for filtering
+SELECT prospect_company_name, 
+       research_results->'executive_summary'->>'fit_score' as fit_score
+FROM lab_prospect_research
+WHERE (research_results->'executive_summary'->>'fit_score')::int > 70;
+
+-- Check if section exists
+SELECT * FROM lab_prospect_research
+WHERE research_results ? 'competitive_analysis';
+
+-- Full-text search within JSONB
+SELECT * FROM lab_prospect_research
+WHERE research_results::text ILIKE '%technology stack%';
+```
+
+**Performance Optimization:**
+```sql
+-- Index for fit_score queries
+CREATE INDEX idx_research_fit_score 
+ON lab_prospect_research((research_results->'executive_summary'->>'fit_score'));
+
+-- GIN index for general JSONB queries
+CREATE INDEX idx_research_results_gin 
+ON lab_prospect_research USING GIN (research_results);
 ```
 
 ### Row Level Security (RLS) Policies
@@ -786,6 +1760,7 @@ All configuration stored in:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-10-03 | Magnus Froste | Initial PRD creation |
+| 1.1 | 2025-10-03 | Magnus Froste | Added Table of Contents, Enhanced Payload Structure (Section 7), Dynamic Response Parsing (Section 8), AI Prompt Engineering Framework (Section 9), updated Database Schema with JSONB details |
 
 **Review Schedule:**
 - Monthly review for accuracy
