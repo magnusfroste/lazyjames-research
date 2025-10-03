@@ -20,6 +20,8 @@ interface UserProfile {
   full_name: string;
   linkedin_profile?: string;
   current_location?: string;
+  birthplace?: string;
+  date_of_birth?: string;
   role_in_organization: string;
   outreach_experience: string;
   prospects_per_week: string;
@@ -408,6 +410,34 @@ export function EditableUserProfile() {
                 />
               ) : (
                 <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.current_location || 'Not specified'}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthplace">Birthplace/Hometown</Label>
+              {isEditing ? (
+                <Input
+                  id="birthplace"
+                  value={profile.birthplace || ''}
+                  onChange={(e) => updateField('birthplace', e.target.value)}
+                  placeholder="e.g., Oslo, Norway"
+                />
+              ) : (
+                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.birthplace || 'Not specified'}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="date_of_birth">Date of Birth</Label>
+              {isEditing ? (
+                <Input
+                  id="date_of_birth"
+                  type="date"
+                  value={profile.date_of_birth || ''}
+                  onChange={(e) => updateField('date_of_birth', e.target.value)}
+                />
+              ) : (
+                <p className="py-2 px-3 border rounded-md bg-muted/30">{profile.date_of_birth || 'Not specified'}</p>
               )}
             </div>
           </CardContent>

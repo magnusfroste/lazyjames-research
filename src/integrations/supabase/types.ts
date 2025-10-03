@@ -241,7 +241,7 @@ export type Database = {
           values: string[]
           vision: string | null
           website_url: string
-          years_active: string
+          years_active: string | null
         }
         Insert: {
           business_registration?: string | null
@@ -274,7 +274,7 @@ export type Database = {
           values?: string[]
           vision?: string | null
           website_url: string
-          years_active: string
+          years_active?: string | null
         }
         Update: {
           business_registration?: string | null
@@ -307,7 +307,7 @@ export type Database = {
           values?: string[]
           vision?: string | null
           website_url?: string
-          years_active?: string
+          years_active?: string | null
         }
         Relationships: []
       }
