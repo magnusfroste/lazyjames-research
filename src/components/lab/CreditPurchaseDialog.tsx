@@ -15,6 +15,11 @@ interface CreditPackage {
 
 const CREDIT_PACKAGES: CreditPackage[] = [
   {
+    credits: 1,
+    price: 1,
+    priceId: 'price_1SE6f4HTXSpIB5InC5uWZ0eW',
+  },
+  {
     credits: 5,
     price: 5,
     priceId: 'price_1RGoUuHTXSpIB5InGhmQ7gdn',
@@ -80,7 +85,7 @@ export const CreditPurchaseDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {CREDIT_PACKAGES.map((pkg) => (
             <Card
               key={pkg.priceId}
