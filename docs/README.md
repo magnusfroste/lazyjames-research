@@ -2,6 +2,10 @@
 
 Complete documentation for the Research Engine system - prospect analysis powered by AI and N8N workflows.
 
+## Product Requirements Document
+
+- **[PRD - Complete Product Specification](./PRD.md)** - Comprehensive product requirements document
+
 ## Quick Start
 
 - **[Getting Started Guide](./setup/README.md)** - Set up your account and run your first research

@@ -33,13 +33,35 @@ Minimal required fields for basic functionality, optional fields enhance analysi
 {
   user_id: uuid,
   company_name: text,
+  website_url: text,
+  linkedin_url: text,
+  business_registration: text,
   industry: text,
+  years_active: text,
+  company_size: text,
+  geographic_markets: text[],
+  mission: text,
+  vision: text,
+  values: text[],
+  organizational_personality: text[],
+  offering_type: text[],
   main_offerings: text[],
   target_industries: text[],
+  ideal_client_size: text[],
+  project_scope: text,
   unique_differentiators: text[],
+  credentials: text[],
+  typical_results: text[],
+  known_clients: boolean,
+  known_clients_list: text,
+  success_story: text,
+  delivery_model: text[],
+  pricing_positioning: text,
   communication_style: text,
   is_complete: boolean,
-  // ... 20+ more fields
+  created_at: timestamp,
+  updated_at: timestamp
+  // Total: 28 fields
 }
 ```
 
@@ -48,7 +70,7 @@ Minimal required fields for basic functionality, optional fields enhance analysi
 {
   user_id: uuid,
   full_name: text,
-  linkedin_url: text,
+  linkedin_profile: text,
   current_location: text,
   birthplace: text,
   date_of_birth: date,
@@ -58,7 +80,7 @@ Minimal required fields for basic functionality, optional fields enhance analysi
   communication_style: text,
   introduction_style: text,
   credibility_preference: text[],
-  preferred_channels: text[],
+  preferred_contact_channel: text[],
   followup_timing: text,
   nonresponse_handling: text,
   pain_points_focus: text[],
@@ -71,6 +93,7 @@ Minimal required fields for basic functionality, optional fields enhance analysi
   is_complete: boolean,
   created_at: timestamp,
   updated_at: timestamp
+  // Total: 26 fields
 }
 ```
 

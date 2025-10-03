@@ -12,18 +12,34 @@ Complete reference for all company profile questions used in the Research Engine
 
 ### 2. Website URL
 - **Field**: `website_url`
-- **Type**: URL
+- **Type**: URL (required)
 - **Validation**: Valid URL format
 - **Purpose**: Company website for research context
 
-### 3. Industry
+### 3. LinkedIn URL
+- **Field**: `linkedin_url`
+- **Type**: URL (optional)
+- **Validation**: Valid URL format
+- **Purpose**: Company LinkedIn profile for additional research context
+
+### 4. Business Registration
+- **Field**: `business_registration`
+- **Type**: Text (optional)
+- **Purpose**: Business registration details or legal entity information
+
+### 5. Industry
 - **Field**: `industry`
-- **Type**: Text
+- **Type**: Text (required)
 - **Purpose**: Industry classification for targeted research
 
-### 4. Company Size
+### 6. Years Active
+- **Field**: `years_active`
+- **Type**: Text (optional)
+- **Purpose**: Years in business for maturity context
+
+### 7. Company Size
 - **Field**: `company_size`
-- **Type**: Select dropdown
+- **Type**: Select dropdown (required)
 - **Options**:
   - Solo (1 person)
   - Startup (2-10 people)
@@ -33,9 +49,9 @@ Complete reference for all company profile questions used in the Research Engine
   - Enterprise (1000+ people)
 - **Purpose**: Context for company scale and resources
 
-### 5. Geographic Focus
-- **Field**: `geographic_focus`
-- **Type**: Multi-select array
+### 8. Geographic Markets
+- **Field**: `geographic_markets`
+- **Type**: Multi-select array (required, default: [])
 - **Options**:
   - Local/Regional
   - National
@@ -45,26 +61,21 @@ Complete reference for all company profile questions used in the Research Engine
 
 ## Mission & Vision
 
-### 6. Mission Statement
+### 9. Mission Statement
 - **Field**: `mission`
-- **Type**: Textarea
+- **Type**: Textarea (required)
 - **Purpose**: Core purpose and values for research alignment
 
-### 7. Vision Statement
+### 10. Vision Statement
 - **Field**: `vision`
-- **Type**: Textarea
+- **Type**: Textarea (optional)
 - **Purpose**: Future aspirations and strategic direction
-
-### 8. Core Problem Solved
-- **Field**: `core_problem_solved`
-- **Type**: Textarea
-- **Purpose**: Primary value proposition and market need addressed
 
 ## Values & Culture
 
-### 9. Company Values
+### 11. Company Values
 - **Field**: `values`
-- **Type**: Multi-select checkboxes array
+- **Type**: Multi-select checkboxes array (required, default: [])
 - **Options**:
   - Innovation
   - Quality
@@ -78,9 +89,9 @@ Complete reference for all company profile questions used in the Research Engine
   - Community Impact
 - **Purpose**: Cultural alignment for communication style
 
-### 10. Work Culture
-- **Field**: `work_culture`
-- **Type**: Multi-select checkboxes array
+### 12. Organizational Personality
+- **Field**: `organizational_personality`
+- **Type**: Multi-select checkboxes array (required, default: [])
 - **Options**:
   - Remote-First
   - Hybrid
@@ -94,9 +105,9 @@ Complete reference for all company profile questions used in the Research Engine
 
 ## Offerings & Services
 
-### 11. Offering Type
+### 13. Offering Type
 - **Field**: `offering_type`
-- **Type**: Multi-select checkboxes array
+- **Type**: Multi-select checkboxes array (required, default: [])
 - **Options**:
   - Products
   - Services
@@ -108,114 +119,77 @@ Complete reference for all company profile questions used in the Research Engine
   - Content
 - **Purpose**: Categorizing business model for relevant research
 
-### 12. Key Products/Services
-- **Field**: `key_products_services`
-- **Type**: Textarea
-- **Purpose**: Detailed description of main offerings
+### 14. Main Offerings
+- **Field**: `main_offerings`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Primary products or services offered
 
-### 13. Target Market
-- **Field**: `target_market`
-- **Type**: Textarea
-- **Purpose**: Primary customer segments and demographics
+### 15. Target Industries
+- **Field**: `target_industries`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Industries the company targets for business
 
-### 14. Competitive Advantages
-- **Field**: `competitive_advantages`
-- **Type**: Textarea
-- **Purpose**: Unique selling propositions and differentiators
+### 16. Ideal Client Size
+- **Field**: `ideal_client_size`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Preferred client company sizes
 
-## Market Position & Strategy
+### 17. Project Scope
+- **Field**: `project_scope`
+- **Type**: Text (required)
+- **Purpose**: Typical project scope and engagement types
 
-### 15. Market Position
-- **Field**: `market_position`
-- **Type**: Select dropdown
-- **Options**:
-  - Market Leader
-  - Strong Competitor
-  - Growing Player
-  - Niche Specialist
-  - New Entrant
-  - Challenger Brand
-- **Purpose**: Understanding competitive landscape position
+### 18. Unique Differentiators
+- **Field**: `unique_differentiators`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Unique selling propositions and competitive advantages
 
-### 16. Business Model
-- **Field**: `business_model`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - B2B
-  - B2C
-  - B2B2C
-  - Marketplace
-  - Subscription
-  - Freemium
-  - Transaction-based
-  - License-based
-- **Purpose**: Revenue model understanding for market research
+### 19. Credentials
+- **Field**: `credentials`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Professional credentials, certifications, and qualifications
 
-### 17. Growth Stage
-- **Field**: `growth_stage`
-- **Type**: Select dropdown
-- **Options**:
-  - Idea/Concept
-  - MVP Development
-  - Early Stage
-  - Growth Stage
-  - Scale Stage
-  - Mature
-  - Pivot/Transition
-- **Purpose**: Company lifecycle context for research focus
+### 20. Typical Results
+- **Field**: `typical_results`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: Common outcomes and results delivered to clients
 
-## Goals & Objectives
+### 21. Known Clients
+- **Field**: `known_clients`
+- **Type**: Boolean (optional, default: false)
+- **Purpose**: Whether the company has notable/referenceable clients
 
-### 18. Primary Business Goals
-- **Field**: `primary_business_goals`
-- **Type**: Multi-select checkboxes array
-- **Options**:
-  - Revenue Growth
-  - Market Expansion
-  - Product Development
-  - Customer Acquisition
-  - Operational Efficiency
-  - Team Building
-  - Brand Awareness
-  - Strategic Partnerships
-- **Purpose**: Strategic priorities for research alignment
+### 22. Known Clients List
+- **Field**: `known_clients_list`
+- **Type**: Text (optional)
+- **Purpose**: List of notable clients (if known_clients is true)
 
-### 19. Success Metrics
-- **Field**: `success_metrics`
-- **Type**: Textarea
-- **Purpose**: Key performance indicators and measurement criteria
+### 23. Success Story
+- **Field**: `success_story`
+- **Type**: Text (optional)
+- **Purpose**: Detailed success story or case study
 
-### 20. Timeline & Milestones
-- **Field**: `timeline_milestones`
-- **Type**: Textarea
-- **Purpose**: Strategic timeline for contextualizing research urgency
+### 24. Delivery Model
+- **Field**: `delivery_model`
+- **Type**: Multi-select array (required, default: [])
+- **Purpose**: How services/products are delivered to clients
 
-## Additional Context
+### 25. Pricing Positioning
+- **Field**: `pricing_positioning`
+- **Type**: Text (required)
+- **Purpose**: Pricing strategy and market positioning
 
-### 21. Key Stakeholders
-- **Field**: `key_stakeholders`
-- **Type**: Textarea
-- **Purpose**: Important parties in decision-making process
+### 26. Communication Style
+- **Field**: `communication_style`
+- **Type**: Text (required)
+- **Purpose**: Preferred communication tone and approach
 
-### 22. Budget Considerations
-- **Field**: `budget_considerations`
-- **Type**: Textarea
-- **Purpose**: Financial constraints and investment capacity
+## Summary
 
-### 23. Technology Stack
-- **Field**: `technology_stack`
-- **Type**: Textarea
-- **Purpose**: Technical infrastructure and capabilities
-
-### 24. Regulatory Environment
-- **Field**: `regulatory_environment`
-- **Type**: Textarea
-- **Purpose**: Compliance requirements and industry regulations
-
-### 25. Additional Notes
-- **Field**: `additional_notes`
-- **Type**: Textarea
-- **Purpose**: Any other relevant context or special considerations
+**Total Company Profile Fields: 28**
+- 26 core profile fields
+- 2 metadata fields (`is_complete`, `user_id`)
+- Automatic timestamps: `created_at`, `updated_at`
 
 ## Metadata Fields
 

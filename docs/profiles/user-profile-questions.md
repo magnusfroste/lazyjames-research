@@ -11,7 +11,7 @@ Complete reference for all user profile questions used in the Research Engine fo
 - **Purpose**: User identification and personalization in outreach
 
 ### 2. LinkedIn Profile URL
-- **Field**: `linkedin_url`
+- **Field**: `linkedin_profile`
 - **Type**: URL (optional)
 - **Purpose**: Credibility verification and networking insights
 
@@ -106,7 +106,7 @@ Complete reference for all user profile questions used in the Research Engine fo
 ## Section D: Outreach Preferences
 
 ### 12. Preferred Contact Channels
-- **Field**: `preferred_channels`
+- **Field**: `preferred_contact_channel`
 - **Type**: Multi-select checkboxes array (required)
 - **Options**:
   - LinkedIn message
@@ -246,8 +246,8 @@ Complete reference for all user profile questions used in the Research Engine fo
 - Final review before completion
 
 ### Required vs Optional Fields
-- **Required**: role_in_organization, outreach_experience, prospects_per_week, communication_style, introduction_style, credibility_preference, preferred_channels, followup_timing, nonresponse_handling, pain_points_focus, expertise_positioning, objection_handling, meeting_format, meeting_duration, success_metrics
-- **Optional**: linkedin_url, current_location, birthplace, date_of_birth
+- **Required**: full_name, role_in_organization, outreach_experience, prospects_per_week, communication_style, introduction_style, credibility_preference, preferred_contact_channel, followup_timing, nonresponse_handling, pain_points_focus, expertise_positioning, objection_handling, meeting_format, meeting_duration, success_metrics
+- **Optional**: linkedin_profile, current_location, birthplace, date_of_birth
 
 ### Progressive Disclosure
 - Basic personal information collected first
