@@ -1,1 +1,3 @@
-Developing
+supabase
+
+magnusfroste@gmail.com
