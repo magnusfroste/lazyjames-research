@@ -62,13 +62,10 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
 
   const loadSavedPrompts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('prompts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSavedPrompts(data || []);
+      // Note: 'prompts' table doesn't exist in database schema
+      // This feature is disabled until the table is created
+      console.log('Prompt saving feature disabled - prompts table not available');
+      setSavedPrompts([]);
     } catch (error) {
       console.error('Error loading prompts:', error);
     }
@@ -94,23 +91,13 @@ export const EvaluationForm: React.FC<EvaluationFormProps> = ({ onSubmit, isLoad
     }
 
     try {
-      const { error } = await supabase
-        .from('prompts')
-        .insert({
-          name: promptName.trim(),
-          user_prompt: formData.userPrompt,
-          master_prompt: formData.masterPrompt,
-        });
-
-      if (error) throw error;
-
+      // Note: 'prompts' table doesn't exist in database schema
+      // This feature is disabled until the table is created
       toast({
-        title: "Success",
-        description: "Prompt saved successfully",
+        title: "Feature Disabled",
+        description: "Prompt saving is not available yet",
+        variant: "destructive",
       });
-
-      setPromptName('');
-      loadSavedPrompts();
     } catch (error) {
       toast({
         title: "Error",
