@@ -2,101 +2,189 @@
 
 The Research Engine is a comprehensive prospect analysis system that combines intelligent payload enhancement with AI-powered research through N8N workflows.
 
-## System Overview
+## Architecture Overview
+
+The codebase follows a clear **Data-Model-View** separation pattern:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      VIEW LAYER                              │
+│  Pages & Components (React)                                  │
+│  src/pages/, src/components/                                 │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      HOOK LAYER                              │
+│  Custom React Hooks for state & data management              │
+│  src/hooks/                                                  │
+│  - useProfiles, useCredits, useResearch, useStartResearch   │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVICE LAYER                             │
+│  Business logic & data operations                            │
+│  src/services/                                               │
+│  - profileService, creditService, researchService, webhook  │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      TYPE LAYER                              │
+│  Domain types & interfaces                                   │
+│  src/types/                                                  │
+│  - profiles.ts, research.ts, credits.ts                     │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      DATA LAYER                              │
+│  Supabase Client & External APIs                             │
+│  src/integrations/supabase/                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Layer Responsibilities
+
+### 1. View Layer (`src/pages/`, `src/components/`)
+- React components for UI rendering
+- User interaction handling
+- No direct database calls
+- Uses hooks for data access
+
+### 2. Hook Layer (`src/hooks/`)
+- Custom React hooks for reactive data
+- State management with useState/useEffect
+- Composes services for data fetching
+- Handles loading/error states
+
+| Hook | Purpose |
+|------|---------|
+| `useProfiles` | Fetch user & company profiles |
+| `useCredits` | Fetch user credit balance |
+| `useResearchList` | Fetch user's research list |
+| `useResearchDetail` | Fetch single research item |
+| `useStartResearch` | Orchestrate research initiation |
+
+### 3. Service Layer (`src/services/`)
+- All database operations
+- Business logic implementation
+- External API calls (webhooks)
+- No React dependencies
+
+| Service | Purpose |
+|---------|---------|
+| `profileService` | CRUD for user & company profiles |
+| `creditService` | Credit balance & transactions |
+| `researchService` | Research CRUD & status updates |
+| `webhookService` | Webhook payload building & sending |
+
+### 4. Type Layer (`src/types/`)
+- TypeScript interfaces & types
+- Domain models
+- Form data types
+- Constants
+
+| File | Contents |
+|------|----------|
+| `profiles.ts` | UserProfile, CompanyProfile types |
+| `research.ts` | ProspectResearch, ResearchFormData |
+| `credits.ts` | CreditTransaction, CREDIT_PACKAGES |
+
+### 5. Data Layer (`src/integrations/supabase/`)
+- Supabase client configuration
+- Auto-generated types from database
+
+## System Flow
 
 ```mermaid
 graph TD
-    A[User Interface] --> B[Enhanced Payload Builder]
-    B --> C[Webhook Sender]
-    C --> D[N8N Workflow]
-    D --> E[AI Analysis Node]
-    E --> F[JSON Response]
+    A[User Interface] --> B[Custom Hooks]
+    B --> C[Service Layer]
+    C --> D[Supabase Client]
+    C --> E[N8N Webhook]
+    E --> F[AI Analysis]
     F --> G[Response Parser]
-    G --> H[Results Display]
-    
-    B --> I[Processing Hints Generator]
-    B --> J[Metadata Enrichment]
-    I --> B
-    J --> B
+    G --> C
+    C --> D
 ```
 
-## Core Components
+## Data Flow: Research Initiation
 
-### 1. Frontend (React/TypeScript)
-- Research initiation and results display
-- Profile management (`lab_user_profiles`, `lab_company_profiles`)
-- Credit system integration
-- Dynamic JSONB response rendering
-
-### 2. Enhanced Payload System
-- Intelligent processing hints from profiles
-- Context-aware metadata enrichment
-- Comprehensive data package for AI
-
-### 3. N8N Workflow
-- Webhook receiver for enhanced payload
-- AI processing with system prompt
-- Structured JSON response
-
-### 4. AI Analysis Engine
-- **System Prompt Controlled**: All content structure defined in N8N
-- **JSONB Storage**: Dynamic schema in `lab_prospect_research.research_results`
-- **Auto-Adaptation**: UI renders any AI-generated sections automatically
-
-### 5. Credit System
-- **Default Allocation**: 5 credits per user (`lab_user_profiles.credits`)
-- **Research Cost**: 1 credit per prospect research
-- **Transaction Logging**: All changes logged in `lab_credit_transactions`
-- **UI Integration**: Credit balance shown in dashboard and profile
-
-## Data Flow
-
-### 1. Research Initiation
 ```
-Authentication Check (Supabase Auth)
-↓
-Credit Balance Check (lab_user_profiles.credits >= 1)
-↓
-Profile Validation (is_complete = true for both profiles)
-↓
-Deduct 1 Credit + Log Transaction (lab_credit_transactions)
-↓
-Generate Enhanced Payload (profiles + prospect data + hints)
-↓
-Send to N8N Webhook
+1. User submits research form (View)
+       │
+       ▼
+2. useStartResearch hook orchestrates (Hook)
+       │
+       ├── checkUserCredits (Service)
+       ├── getProfiles (Service)
+       ├── createResearchRecord (Service)
+       ├── deductCredits (Service)
+       └── sendWebhookInBackground (Service)
+              │
+              ▼
+3. N8N processes webhook → AI analysis
+       │
+       ▼
+4. parseAndSaveN8nResponse updates DB (Lib)
+       │
+       ▼
+5. useResearchList refetches → UI updates (Hook → View)
 ```
 
-### 2. N8N Processing
+## Key Principles
+
+1. **Separation of Concerns**: Views don't access database directly
+2. **Single Responsibility**: Each service handles one domain
+3. **Type Safety**: All data flows through typed interfaces
+4. **Reusability**: Services can be used by multiple hooks/components
+5. **Testability**: Services are pure functions, easy to unit test
+
+## Directory Structure
+
 ```
-Enhanced Payload → Webhook → AI Analysis → Structured JSON Response
+src/
+├── components/          # UI components (View)
+│   ├── lab/            # Research-specific components
+│   └── ui/             # Shadcn/ui primitives
+├── hooks/              # Custom React hooks (Hook Layer)
+│   ├── useProfiles.ts
+│   ├── useCredits.ts
+│   ├── useResearch.ts
+│   └── useStartResearch.ts
+├── services/           # Business logic (Service Layer)
+│   ├── profileService.ts
+│   ├── creditService.ts
+│   ├── researchService.ts
+│   └── webhookService.ts
+├── types/              # Domain types (Type Layer)
+│   ├── profiles.ts
+│   ├── research.ts
+│   └── credits.ts
+├── lib/                # Utilities
+│   ├── exportUtils.ts
+│   ├── researchResponseUtils.ts
+│   └── webhookPayloadUtils.ts
+├── pages/              # Route pages (View)
+├── contexts/           # React contexts
+└── integrations/       # External integrations (Data)
+    └── supabase/
 ```
 
-### 3. Response Storage & Display
-```
-JSON Response → Parse → Store (lab_prospect_research.research_results JSONB)
-↓
-Dynamic UI Rendering → Export Options
-```
+## Database Tables
 
-## Key Features
+### User & Profiles
+- `lab_user_profiles` - User details, credits, preferences (RLS: user_id)
+- `lab_company_profiles` - Company info, offerings, differentiators (RLS: user_id)
 
-### Intelligent Payload Enhancement
-- **Focus Areas**: Dynamic analysis prioritization
-- **Communication Style**: Tone adaptation (professional/casual/consultative)
-- **Experience Level**: Output complexity adjustment
-- **Company Maturity**: Context-aware insights
+### Research
+- `lab_prospect_research` - Research records with JSONB results (RLS: user_id)
+- `lab_credit_transactions` - Credit usage history (RLS: user_id)
 
-### Dynamic Content Architecture
-- **Master Control**: N8N system prompt defines all content structure
-- **Flexible Sections**: AI generates any sections based on system prompt
-- **Auto-Discovery**: Frontend automatically displays all generated sections
-- **Future-Proof Design**: New sections appear automatically without code changes
-
-### Adaptive Analysis Framework
-- **System Prompt Driven**: All analysis structure controlled by N8N system prompt
-- **JSONB Flexibility**: Dynamic storage accommodates any AI-generated structure
-- **Zero Code Changes**: New sections automatically integrate into UI and exports
-- **Content Evolution**: Analysis framework evolves through system prompt updates only
+### Templates
+- `lab_research_templates` - Custom research templates (RLS: user_id)
 
 ## Technology Stack
 
@@ -121,18 +209,5 @@ Dynamic UI Rendering → Export Options
 
 - **RLS Policies**: All `lab_*` tables enforce user-level access control
 - **Authentication**: Supabase Auth with email verification
-- **Webhook Secrets**: Stored in Supabase secrets, not environment variables
-- **Input Validation**: Zod schemas validate all user inputs
-
-## Database Tables
-
-### User & Profiles
-- `lab_user_profiles` - User details, credits, preferences (RLS: user_id)
-- `lab_company_profiles` - Company info, offerings, differentiators (RLS: user_id)
-
-### Research
-- `lab_prospect_research` - Research records with JSONB results (RLS: user_id)
-- `lab_credit_transactions` - Credit usage history (RLS: user_id)
-
-### Templates
-- `lab_research_templates` - Custom research templates (RLS: user_id)
+- **Webhook Secrets**: Stored in Supabase secrets
+- **Input Validation**: Zod schemas validate user inputs
