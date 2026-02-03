@@ -48,7 +48,21 @@ If you want to self-host this application, you'll need:
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
-3. **Run the Application**
+3. **Run Database Migrations**
+   ```bash
+   # Navigate to your project directory
+   cd /path/to/lazyjames-research
+
+   # Run all migrations
+   npx supabase db push
+   ```
+
+   Or manually run migrations:
+   ```bash
+   npx supabase db reset
+   ```
+
+4. **Run the Application**
    ```bash
    npm run dev
    ```
