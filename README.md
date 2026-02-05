@@ -1,4 +1,4 @@
-# LazyJames Research 🔬
+# Scout-in 🔬
 
 Research project exploring AI and machine learning concepts. Experimental codebase for testing new ideas and technologies.
 
